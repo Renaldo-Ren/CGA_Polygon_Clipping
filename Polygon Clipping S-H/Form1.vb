@@ -1,12 +1,12 @@
 ﻿Public Class Form1
-    Dim SelectRect As Rectangle = New Rectangle()
+    Dim ClipRect As Rectangle = New Rectangle()
     Dim _pen As Pen = New Pen(Color.Black, 3)
     Dim shape As String
     ' Each polygon is represented by a List(Of Point).
     Private Polygons As List(Of Point) = Nothing
 
     ' Points for the new polygon.
-    Private NewPolygon As List(Of Point) = Nothing
+    Private PolyPreview As List(Of Point) = Nothing
 
     ' The current mouse position while drawing a new polygon.
     Private NewPoint As Point
@@ -19,32 +19,32 @@
     Private Sub pbCanvas_MouseDown(sender As Object, e As MouseEventArgs) Handles pbCanvas.MouseDown
         If (shape = "Polygon") Then
             ' See if we are already drawing a polygon.
-            If (NewPolygon IsNot Nothing) Then
+            If (PolyPreview IsNot Nothing) Then
                 ' We are already drawing a polygon.
                 ' If it's the right mouse button, finish this
                 ' polygon.
                 If (e.Button = MouseButtons.Right) Then
                     ' Finish this polygon.
-                    If (NewPolygon.Count > 2) Then
-                        Polygons = NewPolygon
-                        NewPolygon = Nothing
+                    If (PolyPreview.Count > 2) Then
+                        Polygons = PolyPreview
+                        PolyPreview = Nothing
                     End If
                 Else
                     ' Add a point to this polygon.
-                    If (NewPolygon(NewPolygon.Count - 1) <>
+                    If (PolyPreview(PolyPreview.Count - 1) <>
             e.Location) Then
-                        NewPolygon.Add(e.Location)
+                        PolyPreview.Add(e.Location)
                     End If
                 End If
             Else
                 ' Start a new polygon.
-                NewPolygon = New List(Of Point)()
+                PolyPreview = New List(Of Point)()
                 NewPoint = e.Location
-                NewPolygon.Add(e.Location)
+                PolyPreview.Add(e.Location)
             End If
         Else
-            SelectRect.Location = e.Location
-            SelectRect.Size = New Size(0, 0)
+            ClipRect.Location = e.Location
+            ClipRect.Size = New Size(0, 0)
         End If
         ' Redraw.
         pbCanvas.Invalidate()
@@ -52,14 +52,14 @@
 
     Private Sub pbCanvas_MouseMove(sender As Object, e As MouseEventArgs) Handles pbCanvas.MouseMove
         If (shape = "Polygon") Then
-            If (NewPolygon Is Nothing) Then Exit Sub
+            If (PolyPreview Is Nothing) Then Exit Sub
             NewPoint = e.Location
 
         Else
             If (e.Button = MouseButtons.Left) Then
 
-                SelectRect.Width = e.X - SelectRect.X
-                SelectRect.Height = e.Y - SelectRect.Y
+                ClipRect.Width = e.X - ClipRect.X
+                ClipRect.Height = e.Y - ClipRect.Y
 
             End If
         End If
@@ -68,10 +68,10 @@
 
     Private Function Clipping(Poly As Array) As List(Of Point)
         Try
-            Dim top = SelectRect.Top
-            Dim bottom = SelectRect.Bottom
-            Dim right = SelectRect.Right
-            Dim left = SelectRect.Left
+            Dim top = ClipRect.Top
+            Dim bottom = ClipRect.Bottom
+            Dim right = ClipRect.Right
+            Dim left = ClipRect.Left
             Dim Clipped As New List(Of Point)
             Dim NewClipped As New List(Of Point)
             Dim counter = 0
@@ -232,22 +232,22 @@
         If (Polygons IsNot Nothing) Then
             e.Graphics.DrawPolygon(Pens.Blue, Polygons.ToArray())
         End If
-        e.Graphics.DrawRectangle(_pen, SelectRect)
+        e.Graphics.DrawRectangle(_pen, ClipRect)
         If (shape = "Polygon") Then
             ' Draw the new polygon.
-            If (NewPolygon IsNot Nothing) Then
+            If (PolyPreview IsNot Nothing) Then
                 ' Draw the new polygon.
-                If (NewPolygon.Count > 1) Then
+                If (PolyPreview.Count > 1) Then
                     e.Graphics.DrawLines(Pens.Green,
-                        NewPolygon.ToArray())
+                        PolyPreview.ToArray())
                 End If
 
                 ' Draw the newest edge.
-                If (NewPolygon.Count > 0) Then
+                If (PolyPreview.Count > 0) Then
                     Using dashed_pen As New Pen(Color.Green)
                         dashed_pen.DashPattern = New Single() {3, 3}
                         e.Graphics.DrawLine(dashed_pen,
-                            NewPolygon(NewPolygon.Count - 1),
+                            PolyPreview(PolyPreview.Count - 1),
                             NewPoint)
                     End Using
                 End If
@@ -270,13 +270,13 @@
 
     Private Sub pbCanvas_MouseUp(sender As Object, e As MouseEventArgs) Handles pbCanvas.MouseUp
         If (shape = "Rectangle") Then
-            If (e.Y < SelectRect.Y) Then
-                SelectRect.Location = If(SelectRect.Location.X > e.X, New Point(e.X, e.Y), New Point(SelectRect.X, e.Y))
-                SelectRect.Size = New Size(Math.Abs(SelectRect.Width), Math.Abs(SelectRect.Height))
+            If (e.Y < ClipRect.Y) Then
+                ClipRect.Location = If(ClipRect.Location.X > e.X, New Point(e.X, e.Y), New Point(ClipRect.X, e.Y))
+                ClipRect.Size = New Size(Math.Abs(ClipRect.Width), Math.Abs(ClipRect.Height))
             Else
-                If SelectRect.Location.X > SelectRect.Right Then
-                    SelectRect.Location = New Point(e.X, SelectRect.Y)
-                    SelectRect.Size = New Size(Math.Abs(SelectRect.Width), Math.Abs(SelectRect.Height))
+                If ClipRect.Location.X > ClipRect.Right Then
+                    ClipRect.Location = New Point(e.X, ClipRect.Y)
+                    ClipRect.Size = New Size(Math.Abs(ClipRect.Width), Math.Abs(ClipRect.Height))
                 End If
             End If
         End If
@@ -284,7 +284,7 @@
     End Sub
 
     Private Sub Delete_Clip()
-        SelectRect = Nothing
+        ClipRect = Nothing
     End Sub
 
     Private Sub Delete_Poly()

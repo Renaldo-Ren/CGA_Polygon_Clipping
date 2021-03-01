@@ -1,6 +1,6 @@
 ﻿Public Class Form1
-    Dim ClipRect As Rectangle = New Rectangle()
-    Dim _pen As Pen = New Pen(Color.Black, 3)
+    Dim ClipWinRect As Rectangle = New Rectangle()
+    Dim _pen As Pen = New Pen(Color.Black, 1)
     Dim shape As String
     ' Each polygon is represented by a List(Of Point).
     Private Polygons As List(Of Point) = Nothing
@@ -43,8 +43,8 @@
                 PolyPreview.Add(e.Location)
             End If
         Else
-            ClipRect.Location = e.Location
-            ClipRect.Size = New Size(0, 0)
+            ClipWinRect.Location = e.Location
+            ClipWinRect.Size = New Size(0, 0)
         End If
         ' Redraw.
         pbCanvas.Invalidate()
@@ -58,8 +58,8 @@
         Else
             If (e.Button = MouseButtons.Left) Then
 
-                ClipRect.Width = e.X - ClipRect.X
-                ClipRect.Height = e.Y - ClipRect.Y
+                ClipWinRect.Width = e.X - ClipWinRect.X
+                ClipWinRect.Height = e.Y - ClipWinRect.Y
 
             End If
         End If
@@ -68,10 +68,10 @@
 
     Private Function Clipping(Poly As Array) As List(Of Point)
         Try
-            Dim top = ClipRect.Top
-            Dim bottom = ClipRect.Bottom
-            Dim right = ClipRect.Right
-            Dim left = ClipRect.Left
+            Dim top = ClipWinRect.Top
+            Dim bottom = ClipWinRect.Bottom
+            Dim right = ClipWinRect.Right
+            Dim left = ClipWinRect.Left
             Dim Clipped As New List(Of Point)
             Dim NewClipped As New List(Of Point)
             Dim counter = 0
@@ -232,7 +232,7 @@
         If (Polygons IsNot Nothing) Then
             e.Graphics.DrawPolygon(Pens.Blue, Polygons.ToArray())
         End If
-        e.Graphics.DrawRectangle(_pen, ClipRect)
+        e.Graphics.DrawRectangle(_pen, ClipWinRect)
         If (shape = "Polygon") Then
             ' Draw the new polygon.
             If (PolyPreview IsNot Nothing) Then
@@ -270,13 +270,13 @@
 
     Private Sub pbCanvas_MouseUp(sender As Object, e As MouseEventArgs) Handles pbCanvas.MouseUp
         If (shape = "Rectangle") Then
-            If (e.Y < ClipRect.Y) Then
-                ClipRect.Location = If(ClipRect.Location.X > e.X, New Point(e.X, e.Y), New Point(ClipRect.X, e.Y))
-                ClipRect.Size = New Size(Math.Abs(ClipRect.Width), Math.Abs(ClipRect.Height))
+            If (e.Y < ClipWinRect.Y) Then
+                ClipWinRect.Location = If(ClipWinRect.Location.X > e.X, New Point(e.X, e.Y), New Point(ClipWinRect.X, e.Y))
+                ClipWinRect.Size = New Size(Math.Abs(ClipWinRect.Width), Math.Abs(ClipWinRect.Height))
             Else
-                If ClipRect.Location.X > ClipRect.Right Then
-                    ClipRect.Location = New Point(e.X, ClipRect.Y)
-                    ClipRect.Size = New Size(Math.Abs(ClipRect.Width), Math.Abs(ClipRect.Height))
+                If ClipWinRect.Location.X > ClipWinRect.Right Then
+                    ClipWinRect.Location = New Point(e.X, ClipWinRect.Y)
+                    ClipWinRect.Size = New Size(Math.Abs(ClipWinRect.Width), Math.Abs(ClipWinRect.Height))
                 End If
             End If
         End If
@@ -284,7 +284,7 @@
     End Sub
 
     Private Sub Delete_Clip()
-        ClipRect = Nothing
+        ClipWinRect = Nothing
     End Sub
 
     Private Sub Delete_Poly()

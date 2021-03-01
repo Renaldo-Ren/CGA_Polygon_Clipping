@@ -25,8 +25,9 @@ Partial Class Form1
         Me.pbCanvas = New System.Windows.Forms.PictureBox()
         Me.btnPoly = New System.Windows.Forms.Button()
         Me.btnRect = New System.Windows.Forms.Button()
-        Me.txtbox = New System.Windows.Forms.TextBox()
-        Me.TextBox1 = New System.Windows.Forms.TextBox()
+        Me.btnDelClip = New System.Windows.Forms.Button()
+        Me.btnClear = New System.Windows.Forms.Button()
+        Me.btnDelPoly = New System.Windows.Forms.Button()
         CType(Me.pbCanvas, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
@@ -49,34 +50,48 @@ Partial Class Form1
         '
         'btnRect
         '
-        Me.btnRect.Location = New System.Drawing.Point(902, 219)
+        Me.btnRect.Location = New System.Drawing.Point(902, 160)
         Me.btnRect.Name = "btnRect"
         Me.btnRect.Size = New System.Drawing.Size(188, 60)
         Me.btnRect.TabIndex = 1
         Me.btnRect.Text = "Rectangle"
         Me.btnRect.UseVisualStyleBackColor = True
         '
-        'txtbox
+        'btnDelClip
         '
-        Me.txtbox.Location = New System.Drawing.Point(888, 359)
-        Me.txtbox.Name = "txtbox"
-        Me.txtbox.Size = New System.Drawing.Size(234, 22)
-        Me.txtbox.TabIndex = 2
+        Me.btnDelClip.Location = New System.Drawing.Point(904, 250)
+        Me.btnDelClip.Name = "btnDelClip"
+        Me.btnDelClip.Size = New System.Drawing.Size(185, 56)
+        Me.btnDelClip.TabIndex = 2
+        Me.btnDelClip.Text = "Delete Clip Window"
+        Me.btnDelClip.UseVisualStyleBackColor = True
         '
-        'TextBox1
+        'btnClear
         '
-        Me.TextBox1.Location = New System.Drawing.Point(888, 411)
-        Me.TextBox1.Name = "TextBox1"
-        Me.TextBox1.Size = New System.Drawing.Size(234, 22)
-        Me.TextBox1.TabIndex = 3
+        Me.btnClear.Location = New System.Drawing.Point(905, 425)
+        Me.btnClear.Name = "btnClear"
+        Me.btnClear.Size = New System.Drawing.Size(185, 56)
+        Me.btnClear.TabIndex = 3
+        Me.btnClear.Text = "Clear Screen"
+        Me.btnClear.UseVisualStyleBackColor = True
+        '
+        'btnDelPoly
+        '
+        Me.btnDelPoly.Location = New System.Drawing.Point(904, 338)
+        Me.btnDelPoly.Name = "btnDelPoly"
+        Me.btnDelPoly.Size = New System.Drawing.Size(185, 56)
+        Me.btnDelPoly.TabIndex = 4
+        Me.btnDelPoly.Text = "Delete Polygon"
+        Me.btnDelPoly.UseVisualStyleBackColor = True
         '
         'Form1
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(1173, 571)
-        Me.Controls.Add(Me.TextBox1)
-        Me.Controls.Add(Me.txtbox)
+        Me.Controls.Add(Me.btnDelPoly)
+        Me.Controls.Add(Me.btnClear)
+        Me.Controls.Add(Me.btnDelClip)
         Me.Controls.Add(Me.btnRect)
         Me.Controls.Add(Me.btnPoly)
         Me.Controls.Add(Me.pbCanvas)
@@ -84,13 +99,13 @@ Partial Class Form1
         Me.Text = "Form1"
         CType(Me.pbCanvas, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
-        Me.PerformLayout()
 
     End Sub
 
     Friend WithEvents pbCanvas As PictureBox
     Friend WithEvents btnPoly As Button
     Friend WithEvents btnRect As Button
-    Friend WithEvents txtbox As TextBox
-    Friend WithEvents TextBox1 As TextBox
+    Friend WithEvents btnDelClip As Button
+    Friend WithEvents btnClear As Button
+    Friend WithEvents btnDelPoly As Button
 End Class

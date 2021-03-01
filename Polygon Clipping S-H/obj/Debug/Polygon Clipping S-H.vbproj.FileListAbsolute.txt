@@ -22,3 +22,15 @@ D:\President University Life\PU 20195\Computer Graphics and Animation\Programmin
 D:\President University Life\PU 20195\Computer Graphics and Animation\Programming Assignment\Polygon Clipping S-H\obj\Debug\Polygon Clipping S-H.exe
 D:\President University Life\PU 20195\Computer Graphics and Animation\Programming Assignment\Polygon Clipping S-H\obj\Debug\Polygon Clipping S-H.xml
 D:\President University Life\PU 20195\Computer Graphics and Animation\Programming Assignment\Polygon Clipping S-H\obj\Debug\Polygon Clipping S-H.pdb
+D:\President University Life\PU 20195\Computer Graphics and Animation\GitHub PA 5\CGA_Polygon_Clipping\Polygon Clipping S-H\bin\Debug\Polygon Clipping S-H.exe.config
+D:\President University Life\PU 20195\Computer Graphics and Animation\GitHub PA 5\CGA_Polygon_Clipping\Polygon Clipping S-H\bin\Debug\Polygon Clipping S-H.exe
+D:\President University Life\PU 20195\Computer Graphics and Animation\GitHub PA 5\CGA_Polygon_Clipping\Polygon Clipping S-H\bin\Debug\Polygon Clipping S-H.pdb
+D:\President University Life\PU 20195\Computer Graphics and Animation\GitHub PA 5\CGA_Polygon_Clipping\Polygon Clipping S-H\bin\Debug\Polygon Clipping S-H.xml
+D:\President University Life\PU 20195\Computer Graphics and Animation\GitHub PA 5\CGA_Polygon_Clipping\Polygon Clipping S-H\obj\Debug\Polygon Clipping S-H.vbprojAssemblyReference.cache
+D:\President University Life\PU 20195\Computer Graphics and Animation\GitHub PA 5\CGA_Polygon_Clipping\Polygon Clipping S-H\obj\Debug\Polygon_Clipping_S_H.Form1.resources
+D:\President University Life\PU 20195\Computer Graphics and Animation\GitHub PA 5\CGA_Polygon_Clipping\Polygon Clipping S-H\obj\Debug\Polygon_Clipping_S_H.Resources.resources
+D:\President University Life\PU 20195\Computer Graphics and Animation\GitHub PA 5\CGA_Polygon_Clipping\Polygon Clipping S-H\obj\Debug\Polygon Clipping S-H.vbproj.GenerateResource.cache
+D:\President University Life\PU 20195\Computer Graphics and Animation\GitHub PA 5\CGA_Polygon_Clipping\Polygon Clipping S-H\obj\Debug\Polygon Clipping S-H.vbproj.CoreCompileInputs.cache
+D:\President University Life\PU 20195\Computer Graphics and Animation\GitHub PA 5\CGA_Polygon_Clipping\Polygon Clipping S-H\obj\Debug\Polygon Clipping S-H.exe
+D:\President University Life\PU 20195\Computer Graphics and Animation\GitHub PA 5\CGA_Polygon_Clipping\Polygon Clipping S-H\obj\Debug\Polygon Clipping S-H.xml
+D:\President University Life\PU 20195\Computer Graphics and Animation\GitHub PA 5\CGA_Polygon_Clipping\Polygon Clipping S-H\obj\Debug\Polygon Clipping S-H.pdb

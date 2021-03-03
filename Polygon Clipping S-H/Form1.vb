@@ -1,15 +1,153 @@
 ﻿Public Class Form1
-    Dim ClipWinRect As Rectangle = New Rectangle()
-    Dim _pen As Pen = New Pen(Color.Black, 1)
+    Dim _pen As Pen = New Pen(Color.Black, 3)
     Dim shape As String
     ' Each polygon is represented by a List(Of Point).
     Private Polygons As List(Of Point) = Nothing
-
+    Private ClippingWindow As List(Of Point) = Nothing
     ' Points for the new polygon.
     Private PolyPreview As List(Of Point) = Nothing
-
+    Private ClippingWindowPreview As List(Of Point) = Nothing
     ' The current mouse position while drawing a new polygon.
     Private NewPoint As Point
+    Private NewPointClip As Point
+    Dim PolyVector = New Vector
+    Dim NormalPolyVector = New Vector
+
+    Structure Vector
+        Dim i() As Double
+        Dim j() As Double
+        Dim n As Integer
+        Public Sub init()
+            n = 0
+            ReDim i(n - 1)
+            ReDim j(n - 1)
+        End Sub
+
+        Public Sub Add(ByVal dx As Double, ByVal dy As Double)
+            n += 1
+            ReDim Preserve i(n - 1)
+            i(n - 1) = dx
+            ReDim Preserve j(n - 1)
+            j(n - 1) = dy
+        End Sub
+    End Structure
+
+    'Private Function Clipping(Poly As Array) As List(Of Point)
+    '    Try
+    '        For count As Integer = 0 To NormalPolyVector.n - 1
+    '            'Top Clipping'
+    '            Dim pivot = ClippingWindow(count)
+    '            For Each p As Point In Polygons
+
+    '            Next
+
+    '            If ((Poly(count).Y <= Top And Poly(count + 1).Y >= Top) Or (Poly(count).Y >= Top And Poly(count + 1).Y <= Top)) Then
+    '                Dim dx = Poly(count + 1).X - Poly(count).X
+    '                Dim dy = Poly(count + 1).Y - Poly(count).Y
+    '                Dim x = Poly(count).X + dx * (Top - Poly(count).Y) / dy
+    '                Dim y = Top
+    '                Dim p As New Point(x, y)
+    '                If (Poly(count).Y <= Top And Poly(count + 1).Y >= Top) Then
+    '                    Clipped.Add(p)
+    '                    Clipped.Add(Poly(count + 1))
+    '                Else
+    '                    Clipped.Add(p)
+    '                End If
+    '            ElseIf (Poly(count).Y >= Top And Poly(count + 1).Y >= Top) Then
+    '                Clipped.Add(Poly(count + 1))
+    '            End If
+    '        Next
+
+    '        If ((Poly(Poly.Length - 1).Y >= Top And Poly(0).Y <= Top) Or (Poly(Poly.Length - 1).Y <= Top And Poly(0).Y >= Top)) Then
+    '            Dim dx = Poly(0).X - Poly(Poly.Length - 1).X
+    '            Dim dy = Poly(0).Y - Poly(Poly.Length - 1).Y
+    '            Dim x = Poly(Poly.Length - 1).X + dx * (Top - Poly(Poly.Length - 1).Y) / dy
+    '            Dim y = Top
+    '            Dim p As New Point(x, y)
+    '            If (Poly(Poly.Length - 1).Y <= Top And Poly(0).Y >= Top) Then
+    '                Clipped.Add(p)
+    '                Clipped.Add(Poly(0))
+    '            Else
+    '                Clipped.Add(p)
+    '            End If
+    '        ElseIf (Poly(Poly.Length - 1).Y >= Top And Poly(0).Y >= Top) Then
+    '            Clipped.Add(Poly(0))
+    '        End If
+    '    Catch
+    '    End Try
+    'End Function
+
+    Private Sub Find_Normal(indicator As Integer)
+        For count As Integer = 0 To PolyVector.n - 1
+            Dim i = PolyVector.i(count)
+            Dim j = PolyVector.j(count)
+            If indicator = 0 Then
+                NormalPolyVector.Add(-j, i)
+            ElseIf indicator = 1 Then
+                NormalPolyVector.Add(j, -i)
+            End If
+        Next
+    End Sub
+
+    Private Function Check_convex(LPoint As List(Of Point))
+        Dim indicator As Integer
+        Dim x1 As Double = LPoint(LPoint.Count - 2).X
+        Dim y1 As Double = LPoint(LPoint.Count - 2).Y
+        Dim x2 As Double = LPoint(LPoint.Count - 1).X
+        Dim y2 As Double = LPoint(LPoint.Count - 1).Y
+        Dim x3 As Double = LPoint(0).X
+        Dim y3 As Double = LPoint(0).Y
+        Dim dx1 As Double = x2 - x1
+        Dim dx2 As Double = x3 - x2
+        Dim dy1 As Double = y2 - y1
+        Dim dy2 As Double = y3 - y2
+        Dim PolyVector = New Vector
+
+        Dim Result As Double = (dx1 * dy2 - dy1 * dx2) * -1
+        If Result > 0 Then
+            indicator = 0
+        ElseIf Result < 0 Then
+            indicator = 1
+        End If
+        PolyVector.Add(dx1, dy1)
+        PolyVector.Add(dx2, dy2)
+
+        If indicator = 0 Then
+            For count As Integer = 0 To LPoint.Count - 2
+                Dim xa As Double = LPoint(count).X
+                Dim ya As Double = LPoint(count).Y
+                Dim xb As Double = LPoint(count + 1).X
+                Dim yb As Double = LPoint(count + 1).Y
+                Dim dx As Double = xb - xa
+                Dim dy As Double = yb - ya
+
+                Dim Res = (PolyVector.i(count + 1) * dy - PolyVector.j(count + 1) * dx) * -1
+                If Res < 0 Then
+                    Check_convex = 2
+                    Exit Function
+                End If
+                PolyVector.Add(dx, dy)
+            Next
+        ElseIf indicator = 1 Then
+            For count As Integer = 0 To LPoint.Count - 2
+                Dim xa As Double = LPoint(count).X
+                Dim ya As Double = LPoint(count).Y
+                Dim xb As Double = LPoint(count + 1).X
+                Dim yb As Double = LPoint(count + 1).Y
+                Dim dx As Double = xb - xa
+                Dim dy As Double = yb - ya
+
+                Dim Res = (PolyVector.i(count + 1) * dy - PolyVector.j(count + 1) * dx) * -1
+                If Res > 0 Then
+                    Check_convex = 2
+                    Exit Function
+                End If
+                PolyVector.Add(dx, dy)
+            Next
+        End If
+        Check_convex = indicator
+    End Function
+
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles Me.Load
 
         pbCanvas.BackColor = Color.White
@@ -42,9 +180,36 @@
                 NewPoint = e.Location
                 PolyPreview.Add(e.Location)
             End If
-        Else
-            ClipWinRect.Location = e.Location
-            ClipWinRect.Size = New Size(0, 0)
+        ElseIf (shape = "Rectangle") Then
+            If (ClippingWindowPreview IsNot Nothing) Then
+                ' We are already drawing a polygon.
+                ' If it's the right mouse button, finish this
+                ' polygon.
+                If (e.Button = MouseButtons.Right) Then
+                    ' Finish this polygon.
+                    If (ClippingWindowPreview.Count > 2) Then
+                        Dim indicator As Integer = Check_convex(ClippingWindowPreview)
+                        If (indicator = 0 Or indicator = 1) Then
+                            ClippingWindow = ClippingWindowPreview
+                            ClippingWindowPreview = Nothing
+                        ElseIf (indicator = 2) Then
+                            MsgBox("Error : Cliping window is not convex")
+                            ClippingWindowPreview = Nothing
+                        End If
+                    End If
+                Else
+                    ' Add a point to this polygon.
+                    If (ClippingWindowPreview(ClippingWindowPreview.Count - 1) <>
+            e.Location) Then
+                        ClippingWindowPreview.Add(e.Location)
+                    End If
+                End If
+            Else
+                ' Start a new polygon.
+                ClippingWindowPreview = New List(Of Point)()
+                NewPointClip = e.Location
+                ClippingWindowPreview.Add(e.Location)
+            End If
         End If
         ' Redraw.
         pbCanvas.Invalidate()
@@ -54,185 +219,24 @@
         If (shape = "Polygon") Then
             If (PolyPreview Is Nothing) Then Exit Sub
             NewPoint = e.Location
-
-        Else
-            If (e.Button = MouseButtons.Left) Then
-
-                ClipWinRect.Width = e.X - ClipWinRect.X
-                ClipWinRect.Height = e.Y - ClipWinRect.Y
-
-            End If
+        ElseIf (shape = "Rectangle") Then
+            If (ClippingWindowPreview Is Nothing) Then Exit Sub
+            NewPointClip = e.Location
         End If
         pbCanvas.Invalidate()
     End Sub
 
-    Private Function Clipping(Poly As Array) As List(Of Point)
-        Try
-            Dim top = ClipWinRect.Top
-            Dim bottom = ClipWinRect.Bottom
-            Dim right = ClipWinRect.Right
-            Dim left = ClipWinRect.Left
-            Dim Clipped As New List(Of Point)
-            Dim NewClipped As New List(Of Point)
-            Dim counter = 0
-            For count As Integer = 0 To Poly.Length - 2
-                'Top Clipping'
-                If ((Poly(count).Y <= top And Poly(count + 1).Y >= top) Or (Poly(count).Y >= top And Poly(count + 1).Y <= top)) Then
-                    Dim dx = Poly(count + 1).X - Poly(count).X
-                    Dim dy = Poly(count + 1).Y - Poly(count).Y
-                    Dim x = Poly(count).X + dx * (top - Poly(count).Y) / dy
-                    Dim y = top
-                    Dim p As New Point(x, y)
-                    If (Poly(count).Y <= top And Poly(count + 1).Y >= top) Then
-                        Clipped.Add(p)
-                        Clipped.Add(Poly(count + 1))
-                    Else
-                        Clipped.Add(p)
-                    End If
-                ElseIf (Poly(count).Y >= top And Poly(count + 1).Y >= top) Then
-                    Clipped.Add(Poly(count + 1))
-                End If
-            Next
-
-            If ((Poly(Poly.Length - 1).Y >= top And Poly(0).Y <= top) Or (Poly(Poly.Length - 1).Y <= top And Poly(0).Y >= top)) Then
-                Dim dx = Poly(0).X - Poly(Poly.Length - 1).X
-                Dim dy = Poly(0).Y - Poly(Poly.Length - 1).Y
-                Dim x = Poly(Poly.Length - 1).X + dx * (top - Poly(Poly.Length - 1).Y) / dy
-                Dim y = top
-                Dim p As New Point(x, y)
-                If (Poly(Poly.Length - 1).Y <= top And Poly(0).Y >= top) Then
-                    Clipped.Add(p)
-                    Clipped.Add(Poly(0))
-                Else
-                    Clipped.Add(p)
-                End If
-            ElseIf (Poly(Poly.Length - 1).Y >= top And Poly(0).Y >= top) Then
-                Clipped.Add(Poly(0))
-            End If
-
-            For count As Integer = 0 To Clipped.ToArray.Length - 2
-                'Bottom Clipping'
-                If ((Clipped(count).Y <= bottom And Clipped(count + 1).Y >= bottom) Or (Clipped(count).Y >= bottom And Clipped(count + 1).Y <= bottom)) Then
-                    Dim dx = Clipped(count + 1).X - Clipped(count).X
-                    Dim dy = Clipped(count + 1).Y - Clipped(count).Y
-                    Dim x = Clipped(count).X + dx * (bottom - Clipped(count).Y) / dy
-                    Dim y = bottom
-                    Dim p As New Point(x, y)
-                    If (Clipped(count).Y >= bottom And Clipped(count + 1).Y <= bottom) Then
-                        NewClipped.Add(p)
-                        NewClipped.Add(Clipped(count + 1))
-                    Else
-                        NewClipped.Add(p)
-                    End If
-                ElseIf (Clipped(count).Y <= bottom And Clipped(count + 1).Y <= bottom) Then
-                    NewClipped.Add(Clipped(count + 1))
-                End If
-            Next
-
-            If ((Clipped(Clipped.ToArray.Length - 1).Y >= bottom And Clipped(0).Y <= bottom) Or (Clipped(Clipped.ToArray.Length - 1).Y <= bottom And Clipped(0).Y >= bottom)) Then
-                Dim dx = Clipped(0).X - Clipped(Clipped.ToArray.Length - 1).X
-                Dim dy = Clipped(0).Y - Clipped(Clipped.ToArray.Length - 1).Y
-                Dim x = Clipped(Clipped.ToArray.Length - 1).X + dx * (bottom - Clipped(Clipped.ToArray.Length - 1).Y) / dy
-                Dim y = bottom
-                Dim p As New Point(x, y)
-                If (Clipped(Clipped.ToArray.Length - 1).Y >= bottom And Clipped(0).Y <= bottom) Then
-                    NewClipped.Add(p)
-                    NewClipped.Add(Clipped(0))
-                Else
-                    NewClipped.Add(p)
-                End If
-            ElseIf (Clipped(Clipped.ToArray.Length - 1).Y <= bottom And Clipped(0).Y <= bottom) Then
-                NewClipped.Add(Clipped(0))
-            End If
-            Clipped = NewClipped
-            NewClipped = New List(Of Point)
-
-            For count As Integer = 0 To Clipped.ToArray.Length - 2
-                'right Clipping'
-                If ((Clipped(count).X <= right And Clipped(count + 1).X >= right) Or (Clipped(count).X >= right And Clipped(count + 1).X <= right)) Then
-                    Dim dx = Clipped(count + 1).X - Clipped(count).X
-                    Dim dy = Clipped(count + 1).Y - Clipped(count).Y
-                    Dim x = right
-                    Dim y = Clipped(count).Y + dy * (right - Clipped(count).X) / dx
-                    Dim p As New Point(x, y)
-                    If (Clipped(count).X >= right And Clipped(count + 1).X <= right) Then
-                        NewClipped.Add(p)
-                        NewClipped.Add(Clipped(count + 1))
-                    Else
-                        NewClipped.Add(p)
-                    End If
-                ElseIf (Clipped(count).X <= right And Clipped(count + 1).X <= right) Then
-                    NewClipped.Add(Clipped(count + 1))
-                End If
-            Next
-
-            If ((Clipped(Clipped.ToArray.Length - 1).X >= right And Clipped(0).X <= right) Or (Clipped(Clipped.ToArray.Length - 1).X <= right And Clipped(0).X >= right)) Then
-                Dim dx = Clipped(0).X - Clipped(Clipped.ToArray.Length - 1).X
-                Dim dy = Clipped(0).Y - Clipped(Clipped.ToArray.Length - 1).Y
-                Dim y = Clipped(Clipped.ToArray.Length - 1).Y + dy * (right - Clipped(Clipped.ToArray.Length - 1).X) / dx
-                Dim x = right
-                Dim p As New Point(x, y)
-                If (Clipped(Clipped.ToArray.Length - 1).X >= right And Clipped(0).X <= right) Then
-                    NewClipped.Add(p)
-                    NewClipped.Add(Clipped(0))
-                Else
-                    NewClipped.Add(p)
-                End If
-            ElseIf (Clipped(Clipped.ToArray.Length - 1).X <= right And Clipped(0).X <= right) Then
-                NewClipped.Add(Clipped(0))
-            End If
-
-            Clipped = NewClipped
-            NewClipped = New List(Of Point)
-
-            For count As Integer = 0 To Clipped.ToArray.Length - 2
-                'Left Clipping'
-                If ((Clipped(count).X <= left And Clipped(count + 1).X >= left) Or (Clipped(count).X >= left And Clipped(count + 1).X <= left)) Then
-                    Dim dx = Clipped(count + 1).X - Clipped(count).X
-                    Dim dy = Clipped(count + 1).Y - Clipped(count).Y
-                    Dim x = left
-                    Dim y = Clipped(count).Y + dy * (left - Clipped(count).X) / dx
-                    Dim p As New Point(x, y)
-                    If (Clipped(count).X <= left And Clipped(count + 1).X >= left) Then
-                        NewClipped.Add(p)
-                        NewClipped.Add(Clipped(count + 1))
-                    Else
-                        NewClipped.Add(p)
-                    End If
-                ElseIf (Clipped(count).X >= left And Clipped(count + 1).X >= left) Then
-                    NewClipped.Add(Clipped(count + 1))
-                End If
-            Next
-
-            If ((Clipped(Clipped.ToArray.Length - 1).X >= left And Clipped(0).X <= left) Or (Clipped(Clipped.ToArray.Length - 1).X <= left And Clipped(0).X >= left)) Then
-                Dim dx = Clipped(0).X - Clipped(Clipped.ToArray.Length - 1).X
-                Dim dy = Clipped(0).Y - Clipped(Clipped.ToArray.Length - 1).Y
-                Dim y = Clipped(Clipped.ToArray.Length - 1).Y + dy * (left - Clipped(Clipped.ToArray.Length - 1).X) / dx
-                Dim x = left
-                Dim p As New Point(x, y)
-                If (Clipped(Clipped.ToArray.Length - 1).X <= left And Clipped(0).X >= left) Then
-                    NewClipped.Add(p)
-                    NewClipped.Add(Clipped(0))
-                Else
-                    NewClipped.Add(p)
-                End If
-            ElseIf (Clipped(Clipped.ToArray.Length - 1).X >= left And Clipped(0).X >= left) Then
-                NewClipped.Add(Clipped(0))
-            End If
-
-            Clipped = NewClipped
-            NewClipped = New List(Of Point)
-            Clipping = Clipped
-        Catch ex As Exception
-        End Try
-    End Function
-
     Private Sub pbCanvas_Paint(sender As Object, e As PaintEventArgs) Handles pbCanvas.Paint
         'e.Graphics.SmoothingMode = SmoothingMode.AntiAlias
-        If (Polygons IsNot Nothing) Then
+        Try
             e.Graphics.DrawPolygon(Pens.Blue, Polygons.ToArray())
-        End If
-        e.Graphics.DrawRectangle(_pen, ClipWinRect)
+        Catch ex As Exception
+        End Try
+        Try
+            e.Graphics.DrawPolygon(Pens.Black, ClippingWindow.ToArray())
+        Catch ex As Exception
+
+        End Try
         If (shape = "Polygon") Then
             ' Draw the new polygon.
             If (PolyPreview IsNot Nothing) Then
@@ -252,12 +256,26 @@
                     End Using
                 End If
             End If
+        ElseIf (shape = "Rectangle") Then
+            ' Draw the new polygon.
+            If (ClippingWindowPreview IsNot Nothing) Then
+                ' Draw the new polygon.
+                If (ClippingWindowPreview.Count > 1) Then
+                    e.Graphics.DrawLines(Pens.Gray,
+                        ClippingWindowPreview.ToArray())
+                End If
+
+                ' Draw the newest edge.
+                If (ClippingWindowPreview.Count > 0) Then
+                    Using dashed_pen As New Pen(Color.Green)
+                        dashed_pen.DashPattern = New Single() {3, 3}
+                        e.Graphics.DrawLine(dashed_pen,
+                            ClippingWindowPreview(ClippingWindowPreview.Count - 1),
+                            NewPointClip)
+                    End Using
+                End If
+            End If
         End If
-        Try
-            Dim Clipped As List(Of Point) = Clipping(Polygons.ToArray())
-            e.Graphics.DrawPolygon(Pens.Red, Clipped.ToArray())
-        Catch ex As Exception
-        End Try
     End Sub
 
     Private Sub btnPoly_MouseClick(sender As Object, e As MouseEventArgs) Handles btnPoly.MouseClick
@@ -268,23 +286,8 @@
         shape = "Rectangle"
     End Sub
 
-    Private Sub pbCanvas_MouseUp(sender As Object, e As MouseEventArgs) Handles pbCanvas.MouseUp
-        If (shape = "Rectangle") Then
-            If (e.Y < ClipWinRect.Y) Then
-                ClipWinRect.Location = If(ClipWinRect.Location.X > e.X, New Point(e.X, e.Y), New Point(ClipWinRect.X, e.Y))
-                ClipWinRect.Size = New Size(Math.Abs(ClipWinRect.Width), Math.Abs(ClipWinRect.Height))
-            Else
-                If ClipWinRect.Location.X > ClipWinRect.Right Then
-                    ClipWinRect.Location = New Point(e.X, ClipWinRect.Y)
-                    ClipWinRect.Size = New Size(Math.Abs(ClipWinRect.Width), Math.Abs(ClipWinRect.Height))
-                End If
-            End If
-        End If
-        pbCanvas.Invalidate()
-    End Sub
-
     Private Sub Delete_Clip()
-        ClipWinRect = Nothing
+        ClippingWindow = Nothing
     End Sub
 
     Private Sub Delete_Poly()

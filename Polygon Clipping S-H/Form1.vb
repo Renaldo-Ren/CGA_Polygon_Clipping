@@ -296,7 +296,7 @@
                 NewPoint = e.Location
                 PolyPreview.Add(e.Location)
             End If
-        ElseIf (shape = "Rectangle") Then
+        ElseIf (shape = "ClippingPoly") Then
             If (ClippingWindowPreview IsNot Nothing) Then
                 ' We are already drawing a polygon.
                 ' If it's the right mouse button, finish this
@@ -363,7 +363,7 @@
         If (shape = "Polygon") Then
             If (PolyPreview Is Nothing) Then Exit Sub
             NewPoint = e.Location
-        ElseIf (shape = "Rectangle") Then
+        ElseIf (shape = "ClippingPoly") Then
             If (ClippingWindowPreview Is Nothing) Then Exit Sub
             NewPointClip = e.Location
         ElseIf (shape = "Multi") Then
@@ -433,7 +433,7 @@
                     End Using
                 End If
             End If
-        ElseIf (shape = "Rectangle") Then
+        ElseIf (shape = "ClippingPoly") Then
 
             If Poly_Type = "Polygon" Then
                 If (Polygons IsNot Nothing) Then
@@ -554,61 +554,6 @@
         End If
     End Sub
 
-    Private Sub btnPoly_MouseClick(sender As Object, e As MouseEventArgs) Handles btnPoly.MouseClick
-        shape = "Polygon"
-        Poly_Type = "Polygon"
-        pbCanvas.Refresh()
-    End Sub
-
-    Private Sub btnRect_MouseClick(sender As Object, e As MouseEventArgs) Handles btnRect.MouseClick
-        shape = "Rectangle"
-        pbCanvas.Refresh()
-    End Sub
-
-    Private Sub Delete_Clip()
-        ClippingWindow = Nothing
-    End Sub
-
-    Private Sub Delete_Poly()
-        Polygons = Nothing
-    End Sub
-
-    Private Sub Delete_Multi()
-        Multi_Polygons.Clear()
-        Multi_PolyVector.Clear()
-    End Sub
-
-    Private Sub btnDelClip_Click(sender As Object, e As EventArgs) Handles btnDelClip.Click
-        Delete_Clip()
-        pbCanvas.Refresh()
-    End Sub
-
-    Private Sub btnDelPoly_Click(sender As Object, e As EventArgs) Handles btnDelPoly.Click
-        Delete_Poly()
-        pbCanvas.Refresh()
-    End Sub
-
-    Private Sub btnClear_Click(sender As Object, e As EventArgs) Handles btnClear.Click
-        Delete_Clip()
-        Delete_Poly()
-        Me.pbCanvas.Image = New Bitmap(Me.pbCanvas.Width, Me.pbCanvas.Height)
-        ClippedPoly.Clear()
-        Multi_Polygons.Clear()
-        Multi_ClippedPoly.Clear()
-        pbCanvas.Refresh()
-    End Sub
-
-    Private Sub btnMulti_Click(sender As Object, e As EventArgs) Handles btnMulti.Click
-        shape = "Multi"
-        Poly_Type = "Multi"
-        pbCanvas.Refresh()
-    End Sub
-
-    Private Sub btnClearMulti_Click(sender As Object, e As EventArgs) Handles btnClearMulti.Click
-        Delete_Multi()
-        pbCanvas.Refresh()
-    End Sub
-
     Private Sub btnSave_Click(sender As Object, e As EventArgs) Handles btnSave.Click
         Me.pbCanvas.Image = New Bitmap(Me.pbCanvas.Width, Me.pbCanvas.Height)
         saveConfirm = "Hokhai"
@@ -720,6 +665,68 @@
         LoadImage(pbCanvas)
     End Sub
 
+    Private Sub btnPoly_MouseClick(sender As Object, e As MouseEventArgs) Handles btnPoly.MouseClick
+        'shape = "Polygon"
+        'Poly_Type = "Polygon"
+        'pbCanvas.Refresh()
+    End Sub
+    Private Sub btnMulti_Click(sender As Object, e As EventArgs) Handles btnMulti.Click
+        'shape = "Multi"
+        'Poly_Type = "Multi"
+        'pbCanvas.Refresh()
+    End Sub
+    Private Sub radSingle_CheckedChanged(sender As Object, e As EventArgs) Handles radSingle.CheckedChanged
+        shape = "Polygon"
+        Poly_Type = "Polygon"
+        pbCanvas.Refresh()
+    End Sub
+    Private Sub radMulti_CheckedChanged(sender As Object, e As EventArgs) Handles radMulti.CheckedChanged
+        shape = "Multi"
+        Poly_Type = "Multi"
+        pbCanvas.Refresh()
+    End Sub
+    Private Sub btnRect_MouseClick(sender As Object, e As MouseEventArgs) Handles btnRect.MouseClick
+        shape = "ClippingPoly"
+        pbCanvas.Refresh()
+    End Sub
+
+    Private Sub Delete_Clip()
+        ClippingWindow = Nothing
+    End Sub
+
+    Private Sub Delete_Poly()
+        Polygons = Nothing
+    End Sub
+
+    Private Sub Delete_Multi()
+        Multi_Polygons.Clear()
+        Multi_PolyVector.Clear()
+    End Sub
+
+    Private Sub btnDelClip_Click(sender As Object, e As EventArgs) Handles btnDelClip.Click
+        Delete_Clip()
+        pbCanvas.Refresh()
+    End Sub
+
+    Private Sub btnDelPoly_Click(sender As Object, e As EventArgs) Handles btnDelPoly.Click
+        Delete_Poly()
+        pbCanvas.Refresh()
+    End Sub
+
+    Private Sub btnClear_Click(sender As Object, e As EventArgs) Handles btnClear.Click
+        Delete_Clip()
+        Delete_Poly()
+        Me.pbCanvas.Image = New Bitmap(Me.pbCanvas.Width, Me.pbCanvas.Height)
+        ClippedPoly.Clear()
+        Multi_Polygons.Clear()
+        Multi_ClippedPoly.Clear()
+        pbCanvas.Refresh()
+    End Sub
+
+    Private Sub btnClearMulti_Click(sender As Object, e As EventArgs) Handles btnClearMulti.Click
+        Delete_Multi()
+        pbCanvas.Refresh()
+    End Sub
     Private Sub btnRefresh_Click(sender As Object, e As EventArgs) Handles btnRefresh.Click
         Delete_Clip()
         ClippedPoly.Clear()

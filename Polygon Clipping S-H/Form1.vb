@@ -1,4 +1,4 @@
-﻿Public Class Form1
+﻿Public Class Form1 'test
     Dim saveConfirm
     Dim _pen As Pen = New Pen(Color.Black, 3)
     Dim shape As String
@@ -10,12 +10,18 @@
     Private ClippingWindowPreview As List(Of Point) = Nothing
     Private NewPoint As Point
     Private NewPointClip As Point
+    Private NewPointMulti As Point
+    Dim Multi_Polygons As New List(Of List(Of Point))
+    Dim Multi_PolyVector As New List(Of Vector)
+    Dim Multi_PolyPreview As List(Of Point) = Nothing
+    Dim Multi_ClippedPoly As New List(Of List(Of Point))
+    Dim Multi_ClipPolyVector As New List(Of Vector)
     Dim PolyVector = New Vector
     Dim ClipPolyVector = New Vector
+    Dim PolyVectorMulti = New Vector
     Dim ClipVector = New Vector
     Dim NormalClipVector = New Vector
     Dim point_indicator As New List(Of Integer)
-    Dim point_indicatorsaver As New List(Of Integer)
 
     Structure Vector
         Dim i() As Double
@@ -36,16 +42,17 @@
         End Sub
     End Structure
 
-    Private Sub Create_PolyVector(ByRef PVector As Vector, ByRef LPoints As List(Of Point))
-        PVector = New Vector
+    Private Function Create_PolyVector(ByRef LPoints As List(Of Point))
+        Dim Temp_Vector As New Vector
         For i As Integer = 0 To LPoints.Count - 1
             If i = LPoints.Count - 1 Then
-                PVector.Add(LPoints(i).X - LPoints(0).X, LPoints(i).Y - LPoints(0).Y)
+                Temp_Vector.Add(LPoints(0).X - LPoints(i).X, LPoints(0).Y - LPoints(i).Y)
             Else
-                PVector.Add(LPoints(i + 1).X - LPoints(i).X, LPoints(i + 1).Y - LPoints(i).Y)
+                Temp_Vector.Add(LPoints(i + 1).X - LPoints(i).X, LPoints(i + 1).Y - LPoints(i).Y)
             End If
         Next
-    End Sub
+        Create_PolyVector = Temp_Vector
+    End Function
 
     Private Function Dot_product(x1 As Double, x2 As Double, y1 As Double, y2 As Double)
         Dot_product = x1 * x2 + y1 * y2
@@ -59,8 +66,117 @@
         Dot_product_vector_diff = v1.i(index1) * v2.i(index2) + v1.j(index1) * v2.j(index2)
     End Function
 
+    Private Sub Multi_Clipping(ByRef Poly As List(Of List(Of Point)), ByRef ClipPoly As List(Of List(Of Point)), ByRef Vect As List(Of Vector), ByRef ClipVect As List(Of Vector))
+        Dim temp_vector As New Vector
+        Try
+            For List_index As Integer = 0 To Poly.Count - 1
+                For count As Integer = 0 To NormalClipVector.n - 1
+                    Dim Temp_index As Integer = 0
+                    point_indicator = New List(Of Integer)
+                    Dim pivot = ClippingWindow(count)
+                    Dim normal_i = NormalClipVector.i(count)
+                    Dim normal_j = NormalClipVector.j(count)
+                    Dim Temp_LPoints As List(Of Point)
+                    Dim Temp_PVector As Vector
+                    If count = 0 Then
+                        Temp_LPoints = Poly(List_index)
+                        Temp_PVector = Vect(List_index)
+                    Else
+                        Temp_LPoints = ClipPoly(List_index)
+                        Temp_PVector = ClipVect(List_index)
+                    End If
+                    For Each p As Point In Temp_LPoints
+                        Dim Temp_Vector_i = p.X - pivot.X
+                        Dim Temp_Vector_j = p.Y - pivot.Y
+                        Dim Dot = Dot_product(Temp_Vector_i, normal_i, Temp_Vector_j, normal_j)
+                        If Dot >= 0 Then
+                            point_indicator.Add(0)
+                        Else
+                            point_indicator.Add(1)
+                        End If
+                    Next
 
-    Private Function Clipping()
+                    For i As Integer = 0 To point_indicator.Count - 1
+                        If i = point_indicator.Count - 1 Then
+                            If (point_indicator(i) = 0 And point_indicator(0) = 0) Then
+                                NewClippedPoly.Add(Temp_LPoints(0))
+                            ElseIf (point_indicator(i) = 0 And point_indicator(0) = 1) Then
+                                temp_vector.Add(Temp_LPoints(i).X - ClippingWindow(count).X, Temp_LPoints(i).Y - ClippingWindow(count).Y)
+                                Dim t = Dot_product_vector_diff(temp_vector, NormalClipVector, Temp_index, count) / Dot_product_vector_diff(Temp_PVector, NormalClipVector, i, count)
+                                If (t < 0) Then
+                                    t *= -1
+                                End If
+                                Dim temp_x = Temp_LPoints(i).X + t * (Temp_LPoints(0).X - Temp_LPoints(i).X)
+                                Dim temp_y = Temp_LPoints(i).Y + t * (Temp_LPoints(0).Y - Temp_LPoints(i).Y)
+                                Dim temp = New Point(temp_x, temp_y)
+                                NewClippedPoly.Add(temp)
+                                Temp_index += 1
+                            ElseIf (point_indicator(i) = 1 And point_indicator(0) = 0) Then
+                                temp_vector.Add(Temp_LPoints(i).X - ClippingWindow(count).X, Temp_LPoints(i).Y - ClippingWindow(count).Y)
+                                Dim t = Dot_product_vector_diff(temp_vector, NormalClipVector, Temp_index, count) / Dot_product_vector_diff(Temp_PVector, NormalClipVector, i, count)
+                                If (t < 0) Then
+                                    t *= -1
+                                End If
+                                Dim temp_x = Temp_LPoints(i).X + t * (Temp_LPoints(0).X - Temp_LPoints(i).X)
+                                Dim temp_y = Temp_LPoints(i).Y + t * (Temp_LPoints(0).Y - Temp_LPoints(i).Y)
+                                Dim temp = New Point(temp_x, temp_y)
+                                NewClippedPoly.Add(temp)
+                                NewClippedPoly.Add(Temp_LPoints(0))
+                                Temp_index += 1
+                            End If
+
+                        Else
+                            If (point_indicator(i) = 0 And point_indicator(i + 1) = 0) Then
+                                NewClippedPoly.Add(Temp_LPoints(i + 1))
+                            ElseIf (point_indicator(i) = 0 And point_indicator(i + 1) = 1) Then
+                                temp_vector.Add(Temp_LPoints(i).X - ClippingWindow(count).X, Temp_LPoints(i).Y - ClippingWindow(count).Y)
+                                Dim t = Dot_product_vector_diff(temp_vector, NormalClipVector, Temp_index, count) / Dot_product_vector_diff(Temp_PVector, NormalClipVector, i, count)
+                                If (t < 0) Then
+                                    t *= -1
+                                End If
+                                Dim temp_x = Temp_LPoints(i).X + t * (Temp_LPoints(i + 1).X - Temp_LPoints(i).X)
+                                Dim temp_y = Temp_LPoints(i).Y + t * (Temp_LPoints(i + 1).Y - Temp_LPoints(i).Y)
+                                Dim temp = New Point(temp_x, temp_y)
+                                NewClippedPoly.Add(temp)
+                                Temp_index += 1
+                            ElseIf (point_indicator(i) = 1 And point_indicator(i + 1) = 0) Then
+                                temp_vector.Add(Temp_LPoints(i).X - ClippingWindow(count).X, Temp_LPoints(i).Y - ClippingWindow(count).Y)
+                                Dim t = Dot_product_vector_diff(temp_vector, NormalClipVector, Temp_index, count) / Dot_product_vector_diff(Temp_PVector, NormalClipVector, i, count)
+                                If (t < 0) Then
+                                    t *= -1
+                                End If
+                                Dim temp_x = Temp_LPoints(i).X + t * (Temp_LPoints(i + 1).X - Temp_LPoints(i).X)
+                                Dim temp_y = Temp_LPoints(i).Y + t * (Temp_LPoints(i + 1).Y - Temp_LPoints(i).Y)
+                                Dim temp = New Point(temp_x, temp_y)
+                                NewClippedPoly.Add(temp)
+                                NewClippedPoly.Add(Temp_LPoints(i + 1))
+                                Temp_index += 1
+                            End If
+                        End If
+                    Next
+                    temp_vector = New Vector
+
+                    Try
+                        ClipPoly(List_index) = NewClippedPoly
+                    Catch ex As Exception
+                        ClipPoly.Add(NewClippedPoly)
+                    End Try
+                    Try
+                        ClipVect(List_index) = Create_PolyVector(ClipPoly(List_index))
+                    Catch ex As Exception
+                        ClipVect.Add(Create_PolyVector(ClipPoly(List_index)))
+                    End Try
+
+                    NewClippedPoly = New List(Of Point)
+                Next
+            Next
+        Catch ex As Exception
+
+        End Try
+
+    End Sub
+
+    Private Sub Clipping(ByRef Poly As List(Of Point), ByRef ClipPoly As List(Of Point), ByRef Vect As Vector, ByRef ClipVect As Vector)
         Dim temp_vector As New Vector
         Try
             For count As Integer = 0 To NormalClipVector.n - 1
@@ -72,11 +188,11 @@
                 Dim Temp_LPoints As List(Of Point)
                 Dim Temp_PVector As Vector
                 If count = 0 Then
-                    Temp_LPoints = Polygons
-                    Temp_PVector = PolyVector
+                    Temp_LPoints = Poly
+                    Temp_PVector = Vect
                 Else
-                    Temp_LPoints = ClippedPoly
-                    Temp_PVector = ClipPolyVector
+                    Temp_LPoints = ClipPoly
+                    Temp_PVector = ClipVect
                 End If
                 For Each p As Point In Temp_LPoints
                     Dim Temp_Vector_i = p.X - pivot.X
@@ -148,15 +264,14 @@
                     End If
                 Next
                 temp_vector = New Vector
-                ClippedPoly = NewClippedPoly
-                Create_PolyVector(ClipPolyVector, ClippedPoly)
+                ClipPoly = NewClippedPoly
+                ClipVect = Create_PolyVector(ClipPoly)
                 NewClippedPoly = New List(Of Point)
             Next
         Catch ex As Exception
 
         End Try
-        Clipping = ClippedPoly
-    End Function
+    End Sub
 
     Private Sub Find_Normal(indicator As Integer)
         For count As Integer = 0 To ClipVector.n - 1
@@ -224,7 +339,7 @@
     End Function
 
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles Me.Load
-        Me.pbCanvas.Image = New Bitmap(Me.pbCanvas.Width, Me.pbCanvas.Height)
+
         pbCanvas.BackColor = Color.White
 
     End Sub
@@ -242,7 +357,7 @@
                         Polygons = PolyPreview
                         PolyPreview = Nothing
                         PolyVector = New Vector
-                        Create_PolyVector(PolyVector, Polygons)
+                        PolyVector = Create_PolyVector(Polygons)
                     End If
                 Else
                     ' Add a point to this polygon.
@@ -289,6 +404,32 @@
                 NewPointClip = e.Location
                 ClippingWindowPreview.Add(e.Location)
             End If
+        ElseIf shape = "Multi" Then
+            If (Multi_PolyPreview IsNot Nothing) Then
+                ' We are already drawing a polygon.
+                ' If it's the right mouse button, finish this
+                ' polygon.
+                If (e.Button = MouseButtons.Right) Then
+                    ' Finish this polygon.
+                    If (Multi_PolyPreview.Count > 2) Then _
+                        Multi_Polygons.Add(Multi_PolyPreview)
+                    PolyVectorMulti = New Vector
+                    PolyVectorMulti = Create_PolyVector(Multi_PolyPreview)
+                    Multi_PolyVector.Add(PolyVectorMulti)
+                    Multi_PolyPreview = Nothing
+                Else
+                    ' Add a point to this polygon.
+                    If (Multi_PolyPreview(Multi_PolyPreview.Count - 1) <>
+                        e.Location) Then
+                        Multi_PolyPreview.Add(e.Location)
+                    End If
+                End If
+            Else
+                ' Start a new polygon.
+                Multi_PolyPreview = New List(Of Point)()
+                NewPointMulti = e.Location
+                Multi_PolyPreview.Add(e.Location)
+            End If
         End If
         ' Redraw.
         pbCanvas.Invalidate()
@@ -301,42 +442,37 @@
         ElseIf (shape = "Rectangle") Then
             If (ClippingWindowPreview Is Nothing) Then Exit Sub
             NewPointClip = e.Location
+        ElseIf (shape = "Multi") Then
+            If (Multi_PolyPreview Is Nothing) Then Exit Sub
+            NewPointMulti = e.Location
         End If
         pbCanvas.Invalidate()
     End Sub
 
     Private Sub pbCanvas_Paint(sender As Object, e As PaintEventArgs) Handles pbCanvas.Paint
         'e.Graphics.SmoothingMode = SmoothingMode.AntiAlias
-        ClippedPoly = Clipping()
-        If (Polygons IsNot Nothing) Then
-            For i As Integer = 0 To Polygons.Count - 1
-                If i = Polygons.Count - 1 Then
-                    e.Graphics.DrawLine(Pens.Blue, Polygons(i), Polygons(0))
-                Else
-                    e.Graphics.DrawLine(Pens.Blue, Polygons(i), Polygons(i + 1))
-                End If
-            Next
-        End If
-        If (ClippingWindow IsNot Nothing) Then
-            For i As Integer = 0 To ClippingWindow.Count - 1
-                If i = ClippingWindow.Count - 1 Then
-                    e.Graphics.DrawLine(Pens.Black, ClippingWindow(i), ClippingWindow(0))
-                Else
-                    e.Graphics.DrawLine(Pens.Black, ClippingWindow(i), ClippingWindow(i + 1))
-                End If
-            Next
-        End If
         Try
-            For i As Integer = 0 To ClippedPoly.Count - 1
-                If i = ClippedPoly.Count - 1 Then
-                    e.Graphics.DrawLine(Pens.Red, ClippedPoly(i), ClippedPoly(0))
-                Else
-                    e.Graphics.DrawLine(Pens.Red, ClippedPoly(i), ClippedPoly(i + 1))
-                End If
-            Next
+            Clipping(Polygons, ClippedPoly, PolyVector, ClipPolyVector)
         Catch ex As Exception
+
         End Try
+        Try
+            Multi_Clipping(Multi_Polygons, Multi_ClippedPoly, Multi_PolyVector, Multi_ClipPolyVector)
+        Catch ex As Exception
+
+        End Try
+        If (ClippingWindow IsNot Nothing) Then
+            e.Graphics.DrawPolygon(Pens.Black, ClippingWindow.ToArray())
+        End If
+
         If (shape = "Polygon") Then
+            If (Polygons IsNot Nothing) Then
+                e.Graphics.DrawPolygon(Pens.Blue, Polygons.ToArray())
+            End If
+            Try
+                e.Graphics.DrawPolygon(Pens.Red, ClippedPoly.ToArray())
+            Catch ex As Exception
+            End Try
             ' Draw the new polygon.
             If (PolyPreview IsNot Nothing) Then
                 ' Draw the new polygon.
@@ -356,12 +492,19 @@
                 End If
             End If
         ElseIf (shape = "Rectangle") Then
+            If (Polygons IsNot Nothing) Then
+                e.Graphics.DrawPolygon(Pens.Blue, Polygons.ToArray())
+            End If
+            Try
+                e.Graphics.DrawPolygon(Pens.Red, ClippedPoly.ToArray())
+            Catch ex As Exception
+            End Try
             ' Draw the new polygon.
             If (ClippingWindowPreview IsNot Nothing) Then
                 ' Draw the new polygon.
                 If (ClippingWindowPreview.Count > 1) Then
                     e.Graphics.DrawLines(Pens.Gray,
-                    ClippingWindowPreview.ToArray())
+                        ClippingWindowPreview.ToArray())
                 End If
 
                 ' Draw the newest edge.
@@ -369,8 +512,44 @@
                     Using dashed_pen As New Pen(Color.Green)
                         dashed_pen.DashPattern = New Single() {3, 3}
                         e.Graphics.DrawLine(dashed_pen,
-                        ClippingWindowPreview(ClippingWindowPreview.Count - 1),
-                        NewPointClip)
+                            ClippingWindowPreview(ClippingWindowPreview.Count - 1),
+                            NewPointClip)
+                    End Using
+                End If
+            End If
+        ElseIf (shape = "Multi") Then
+            Try
+                For Each Poly In Multi_Polygons
+                    e.Graphics.DrawPolygon(Pens.Purple, Poly.ToArray())
+                Next
+            Catch ex As Exception
+
+            End Try
+            Try
+                For Each ClipPoly In Multi_ClippedPoly
+                    Try
+                        e.Graphics.DrawPolygon(Pens.Orange, ClipPoly.ToArray())
+                    Catch ex As Exception
+
+                    End Try
+                Next
+            Catch ex As Exception
+            End Try
+            ' Draw the new polygon.
+            If (Multi_PolyPreview IsNot Nothing) Then
+                ' Draw the new polygon.
+                If (Multi_PolyPreview.Count > 1) Then
+                    e.Graphics.DrawLines(Pens.Green,
+                        Multi_PolyPreview.ToArray())
+                End If
+
+                ' Draw the newest edge.
+                If (Multi_PolyPreview.Count > 0) Then
+                    Using dashed_pen As New Pen(Color.Green)
+                        dashed_pen.DashPattern = New Single() {3, 3}
+                        e.Graphics.DrawLine(dashed_pen,
+                            Multi_PolyPreview(Multi_PolyPreview.Count - 1),
+                            NewPointMulti)
                     End Using
                 End If
             End If
@@ -391,7 +570,6 @@
 
     Private Sub Delete_Poly()
         Polygons = Nothing
-        ClippedPoly = Nothing
     End Sub
 
     Private Sub btnDelClip_Click(sender As Object, e As EventArgs) Handles btnDelClip.Click
@@ -407,15 +585,20 @@
     Private Sub btnClear_Click(sender As Object, e As EventArgs) Handles btnClear.Click
         Delete_Clip()
         Delete_Poly()
-        Me.pbCanvas.Image = New Bitmap(Me.pbCanvas.Width, Me.pbCanvas.Height)
         pbCanvas.Refresh()
     End Sub
 
-    Private Sub btnRefresh_Click(sender As Object, e As EventArgs) Handles btnRefresh.Click
-        Delete_Clip()
-        ClippedPoly = Nothing
+    Private Sub btnMulti_Click(sender As Object, e As EventArgs) Handles btnMulti.Click
+        shape = "Multi"
+    End Sub
+
+    Private Sub btnClearMulti_Click(sender As Object, e As EventArgs) Handles btnClearMulti.Click
+        Multi_Polygons.Clear()
+        Multi_PolyVector.Clear()
+        Multi_ClippedPoly.Clear()
         pbCanvas.Refresh()
     End Sub
+
     Private Sub btnSave_Click(sender As Object, e As EventArgs) Handles btnSave.Click
         saveConfirm = "Hokhai"
         Dim g As Graphics = Graphics.FromImage(pbCanvas.Image)

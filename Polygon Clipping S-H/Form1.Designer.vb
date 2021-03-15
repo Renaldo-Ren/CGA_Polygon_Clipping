@@ -31,6 +31,8 @@ Partial Class Form1
         Me.btnRefresh = New System.Windows.Forms.Button()
         Me.btnSave = New System.Windows.Forms.Button()
         Me.btnLoad = New System.Windows.Forms.Button()
+        Me.btnMulti = New System.Windows.Forms.Button()
+        Me.btnClearMulti = New System.Windows.Forms.Button()
         CType(Me.pbCanvas, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
@@ -114,11 +116,31 @@ Partial Class Form1
         Me.btnLoad.Text = "Load"
         Me.btnLoad.UseVisualStyleBackColor = True
         '
+        'btnMulti
+        '
+        Me.btnMulti.Location = New System.Drawing.Point(722, 535)
+        Me.btnMulti.Name = "btnMulti"
+        Me.btnMulti.Size = New System.Drawing.Size(96, 29)
+        Me.btnMulti.TabIndex = 8
+        Me.btnMulti.Text = "Multi"
+        Me.btnMulti.UseVisualStyleBackColor = True
+        '
+        'btnClearMulti
+        '
+        Me.btnClearMulti.Location = New System.Drawing.Point(546, 541)
+        Me.btnClearMulti.Name = "btnClearMulti"
+        Me.btnClearMulti.Size = New System.Drawing.Size(146, 23)
+        Me.btnClearMulti.TabIndex = 9
+        Me.btnClearMulti.Text = "Clear Multi"
+        Me.btnClearMulti.UseVisualStyleBackColor = True
+        '
         'Form1
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(1173, 571)
+        Me.Controls.Add(Me.btnClearMulti)
+        Me.Controls.Add(Me.btnMulti)
         Me.Controls.Add(Me.btnLoad)
         Me.Controls.Add(Me.btnSave)
         Me.Controls.Add(Me.btnRefresh)
@@ -144,4 +166,6 @@ Partial Class Form1
     Friend WithEvents btnRefresh As Button
     Friend WithEvents btnSave As Button
     Friend WithEvents btnLoad As Button
+    Friend WithEvents btnMulti As Button
+    Friend WithEvents btnClearMulti As Button
 End Class

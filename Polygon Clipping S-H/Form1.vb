@@ -1,17 +1,21 @@
 ﻿Public Class Form1
+    Dim saveConfirm
     Dim _pen As Pen = New Pen(Color.Black, 3)
     Dim shape As String
-    ' Each polygon is represented by a List(Of Point).
     Private Polygons As List(Of Point) = Nothing
     Private ClippingWindow As List(Of Point) = Nothing
-    ' Points for the new polygon.
+    Private ClippedPoly As New List(Of Point)
+    Private NewClippedPoly As New List(Of Point)
     Private PolyPreview As List(Of Point) = Nothing
     Private ClippingWindowPreview As List(Of Point) = Nothing
-    ' The current mouse position while drawing a new polygon.
     Private NewPoint As Point
     Private NewPointClip As Point
     Dim PolyVector = New Vector
-    Dim NormalPolyVector = New Vector
+    Dim ClipPolyVector = New Vector
+    Dim ClipVector = New Vector
+    Dim NormalClipVector = New Vector
+    Dim point_indicator As New List(Of Integer)
+    Dim point_indicatorsaver As New List(Of Integer)
 
     Structure Vector
         Dim i() As Double
@@ -32,124 +36,195 @@
         End Sub
     End Structure
 
-    'Private Function Clipping(Poly As Array) As List(Of Point)
-    '    Try
-    '        For count As Integer = 0 To NormalPolyVector.n - 1
-    '            'Top Clipping'
-    '            Dim pivot = ClippingWindow(count)
-    '            For Each p As Point In Polygons
+    Private Sub Create_PolyVector(ByRef PVector As Vector, ByRef LPoints As List(Of Point))
+        PVector = New Vector
+        For i As Integer = 0 To LPoints.Count - 1
+            If i = LPoints.Count - 1 Then
+                PVector.Add(LPoints(i).X - LPoints(0).X, LPoints(i).Y - LPoints(0).Y)
+            Else
+                PVector.Add(LPoints(i + 1).X - LPoints(i).X, LPoints(i + 1).Y - LPoints(i).Y)
+            End If
+        Next
+    End Sub
 
-    '            Next
+    Private Function Dot_product(x1 As Double, x2 As Double, y1 As Double, y2 As Double)
+        Dot_product = x1 * x2 + y1 * y2
+    End Function
 
-    '            If ((Poly(count).Y <= Top And Poly(count + 1).Y >= Top) Or (Poly(count).Y >= Top And Poly(count + 1).Y <= Top)) Then
-    '                Dim dx = Poly(count + 1).X - Poly(count).X
-    '                Dim dy = Poly(count + 1).Y - Poly(count).Y
-    '                Dim x = Poly(count).X + dx * (Top - Poly(count).Y) / dy
-    '                Dim y = Top
-    '                Dim p As New Point(x, y)
-    '                If (Poly(count).Y <= Top And Poly(count + 1).Y >= Top) Then
-    '                    Clipped.Add(p)
-    '                    Clipped.Add(Poly(count + 1))
-    '                Else
-    '                    Clipped.Add(p)
-    '                End If
-    '            ElseIf (Poly(count).Y >= Top And Poly(count + 1).Y >= Top) Then
-    '                Clipped.Add(Poly(count + 1))
-    '            End If
-    '        Next
+    Private Function Dot_product_vector(v1 As Vector, v2 As Vector, index As Integer)
+        Dot_product_vector = v1.i(index) * v2.i(index) + v1.j(index) * v2.j(index)
+    End Function
 
-    '        If ((Poly(Poly.Length - 1).Y >= Top And Poly(0).Y <= Top) Or (Poly(Poly.Length - 1).Y <= Top And Poly(0).Y >= Top)) Then
-    '            Dim dx = Poly(0).X - Poly(Poly.Length - 1).X
-    '            Dim dy = Poly(0).Y - Poly(Poly.Length - 1).Y
-    '            Dim x = Poly(Poly.Length - 1).X + dx * (Top - Poly(Poly.Length - 1).Y) / dy
-    '            Dim y = Top
-    '            Dim p As New Point(x, y)
-    '            If (Poly(Poly.Length - 1).Y <= Top And Poly(0).Y >= Top) Then
-    '                Clipped.Add(p)
-    '                Clipped.Add(Poly(0))
-    '            Else
-    '                Clipped.Add(p)
-    '            End If
-    '        ElseIf (Poly(Poly.Length - 1).Y >= Top And Poly(0).Y >= Top) Then
-    '            Clipped.Add(Poly(0))
-    '        End If
-    '    Catch
-    '    End Try
-    'End Function
+    Private Function Dot_product_vector_diff(v1 As Vector, v2 As Vector, index1 As Integer, index2 As Integer)
+        Dot_product_vector_diff = v1.i(index1) * v2.i(index2) + v1.j(index1) * v2.j(index2)
+    End Function
+
+
+    Private Function Clipping()
+        Dim temp_vector As New Vector
+        Try
+            For count As Integer = 0 To NormalClipVector.n - 1
+                Dim Temp_index As Integer = 0
+                point_indicator = New List(Of Integer)
+                Dim pivot = ClippingWindow(count)
+                Dim normal_i = NormalClipVector.i(count)
+                Dim normal_j = NormalClipVector.j(count)
+                Dim Temp_LPoints As List(Of Point)
+                Dim Temp_PVector As Vector
+                If count = 0 Then
+                    Temp_LPoints = Polygons
+                    Temp_PVector = PolyVector
+                Else
+                    Temp_LPoints = ClippedPoly
+                    Temp_PVector = ClipPolyVector
+                End If
+                For Each p As Point In Temp_LPoints
+                    Dim Temp_Vector_i = p.X - pivot.X
+                    Dim Temp_Vector_j = p.Y - pivot.Y
+                    Dim Dot = Dot_product(Temp_Vector_i, normal_i, Temp_Vector_j, normal_j)
+                    If Dot >= 0 Then
+                        point_indicator.Add(0)
+                    Else
+                        point_indicator.Add(1)
+                    End If
+                Next
+
+                For i As Integer = 0 To point_indicator.Count - 1
+                    If i = point_indicator.Count - 1 Then
+                        If (point_indicator(i) = 0 And point_indicator(0) = 0) Then
+                            NewClippedPoly.Add(Temp_LPoints(0))
+                        ElseIf (point_indicator(i) = 0 And point_indicator(0) = 1) Then
+                            temp_vector.Add(Temp_LPoints(i).X - ClippingWindow(count).X, Temp_LPoints(i).Y - ClippingWindow(count).Y)
+                            Dim t = Dot_product_vector_diff(temp_vector, NormalClipVector, Temp_index, count) / Dot_product_vector_diff(Temp_PVector, NormalClipVector, i, count)
+                            If (t < 0) Then
+                                t *= -1
+                            End If
+                            Dim temp_x = Temp_LPoints(i).X + t * (Temp_LPoints(0).X - Temp_LPoints(i).X)
+                            Dim temp_y = Temp_LPoints(i).Y + t * (Temp_LPoints(0).Y - Temp_LPoints(i).Y)
+                            Dim temp = New Point(temp_x, temp_y)
+                            NewClippedPoly.Add(temp)
+                            Temp_index += 1
+                        ElseIf (point_indicator(i) = 1 And point_indicator(0) = 0) Then
+                            temp_vector.Add(Temp_LPoints(i).X - ClippingWindow(count).X, Temp_LPoints(i).Y - ClippingWindow(count).Y)
+                            Dim t = Dot_product_vector_diff(temp_vector, NormalClipVector, Temp_index, count) / Dot_product_vector_diff(Temp_PVector, NormalClipVector, i, count)
+                            If (t < 0) Then
+                                t *= -1
+                            End If
+                            Dim temp_x = Temp_LPoints(i).X + t * (Temp_LPoints(0).X - Temp_LPoints(i).X)
+                            Dim temp_y = Temp_LPoints(i).Y + t * (Temp_LPoints(0).Y - Temp_LPoints(i).Y)
+                            Dim temp = New Point(temp_x, temp_y)
+                            NewClippedPoly.Add(temp)
+                            NewClippedPoly.Add(Temp_LPoints(0))
+                            Temp_index += 1
+                        End If
+
+                    Else
+                        If (point_indicator(i) = 0 And point_indicator(i + 1) = 0) Then
+                            NewClippedPoly.Add(Temp_LPoints(i + 1))
+                        ElseIf (point_indicator(i) = 0 And point_indicator(i + 1) = 1) Then
+                            temp_vector.Add(Temp_LPoints(i).X - ClippingWindow(count).X, Temp_LPoints(i).Y - ClippingWindow(count).Y)
+                            Dim t = Dot_product_vector_diff(temp_vector, NormalClipVector, Temp_index, count) / Dot_product_vector_diff(Temp_PVector, NormalClipVector, i, count)
+                            If (t < 0) Then
+                                t *= -1
+                            End If
+                            Dim temp_x = Temp_LPoints(i).X + t * (Temp_LPoints(i + 1).X - Temp_LPoints(i).X)
+                            Dim temp_y = Temp_LPoints(i).Y + t * (Temp_LPoints(i + 1).Y - Temp_LPoints(i).Y)
+                            Dim temp = New Point(temp_x, temp_y)
+                            NewClippedPoly.Add(temp)
+                            Temp_index += 1
+                        ElseIf (point_indicator(i) = 1 And point_indicator(i + 1) = 0) Then
+                            temp_vector.Add(Temp_LPoints(i).X - ClippingWindow(count).X, Temp_LPoints(i).Y - ClippingWindow(count).Y)
+                            Dim t = Dot_product_vector_diff(temp_vector, NormalClipVector, Temp_index, count) / Dot_product_vector_diff(Temp_PVector, NormalClipVector, i, count)
+                            If (t < 0) Then
+                                t *= -1
+                            End If
+                            Dim temp_x = Temp_LPoints(i).X + t * (Temp_LPoints(i + 1).X - Temp_LPoints(i).X)
+                            Dim temp_y = Temp_LPoints(i).Y + t * (Temp_LPoints(i + 1).Y - Temp_LPoints(i).Y)
+                            Dim temp = New Point(temp_x, temp_y)
+                            NewClippedPoly.Add(temp)
+                            NewClippedPoly.Add(Temp_LPoints(i + 1))
+                            Temp_index += 1
+                        End If
+                    End If
+                Next
+                temp_vector = New Vector
+                ClippedPoly = NewClippedPoly
+                Create_PolyVector(ClipPolyVector, ClippedPoly)
+                NewClippedPoly = New List(Of Point)
+            Next
+        Catch ex As Exception
+
+        End Try
+        Clipping = ClippedPoly
+    End Function
 
     Private Sub Find_Normal(indicator As Integer)
-        For count As Integer = 0 To PolyVector.n - 1
-            Dim i = PolyVector.i(count)
-            Dim j = PolyVector.j(count)
+        For count As Integer = 0 To ClipVector.n - 1
+            Dim i = ClipVector.i(count)
+            Dim j = ClipVector.j(count)
             If indicator = 0 Then
-                NormalPolyVector.Add(-j, i)
+                NormalClipVector.Add(j, -i)
             ElseIf indicator = 1 Then
-                NormalPolyVector.Add(j, -i)
+                NormalClipVector.Add(-j, i)
             End If
         Next
     End Sub
 
     Private Function Check_convex(LPoint As List(Of Point))
         Dim indicator As Integer
-        Dim x1 As Double = LPoint(LPoint.Count - 2).X
-        Dim y1 As Double = LPoint(LPoint.Count - 2).Y
-        Dim x2 As Double = LPoint(LPoint.Count - 1).X
-        Dim y2 As Double = LPoint(LPoint.Count - 1).Y
-        Dim x3 As Double = LPoint(0).X
-        Dim y3 As Double = LPoint(0).Y
+        Dim x1 As Double = LPoint(0).X
+        Dim y1 As Double = LPoint(0).Y
+        Dim x2 As Double = LPoint(1).X
+        Dim y2 As Double = LPoint(1).Y
+        Dim x3 As Double = LPoint(2).X
+        Dim y3 As Double = LPoint(2).Y
         Dim dx1 As Double = x2 - x1
         Dim dx2 As Double = x3 - x2
         Dim dy1 As Double = y2 - y1
         Dim dy2 As Double = y3 - y2
-        Dim PolyVector = New Vector
 
         Dim Result As Double = (dx1 * dy2 - dy1 * dx2) * -1
-        If Result > 0 Then
+        If Result > 0 Then 'Counter-Clockwise
             indicator = 0
-        ElseIf Result < 0 Then
+        ElseIf Result < 0 Then 'Clockwise
             indicator = 1
         End If
-        PolyVector.Add(dx1, dy1)
-        PolyVector.Add(dx2, dy2)
+        ClipVector.Add(dx1, dy1)
+        ClipVector.Add(dx2, dy2)
 
-        If indicator = 0 Then
-            For count As Integer = 0 To LPoint.Count - 2
-                Dim xa As Double = LPoint(count).X
-                Dim ya As Double = LPoint(count).Y
-                Dim xb As Double = LPoint(count + 1).X
-                Dim yb As Double = LPoint(count + 1).Y
-                Dim dx As Double = xb - xa
-                Dim dy As Double = yb - ya
+        For count As Integer = 2 To LPoint.Count - 1
+            Dim xa As Double = LPoint(count).X
+            Dim ya As Double = LPoint(count).Y
+            Dim xb As Double
+            Dim yb As Double
+            If count = LPoint.Count - 1 Then
+                xb = LPoint(0).X
+                yb = LPoint(0).Y
+            Else
+                xb = LPoint(count + 1).X
+                yb = LPoint(count + 1).Y
+            End If
+            Dim dx As Double = xb - xa
+            Dim dy As Double = yb - ya
 
-                Dim Res = (PolyVector.i(count + 1) * dy - PolyVector.j(count + 1) * dx) * -1
-                If Res < 0 Then
-                    Check_convex = 2
-                    Exit Function
-                End If
-                PolyVector.Add(dx, dy)
-            Next
-        ElseIf indicator = 1 Then
-            For count As Integer = 0 To LPoint.Count - 2
-                Dim xa As Double = LPoint(count).X
-                Dim ya As Double = LPoint(count).Y
-                Dim xb As Double = LPoint(count + 1).X
-                Dim yb As Double = LPoint(count + 1).Y
-                Dim dx As Double = xb - xa
-                Dim dy As Double = yb - ya
-
-                Dim Res = (PolyVector.i(count + 1) * dy - PolyVector.j(count + 1) * dx) * -1
-                If Res > 0 Then
-                    Check_convex = 2
-                    Exit Function
-                End If
-                PolyVector.Add(dx, dy)
-            Next
+            Dim Res = (ClipVector.i(count - 1) * dy - ClipVector.j(count - 1) * dx) * -1
+            If (indicator = 0 And Res < 0) Or (indicator = 1 And Res > 0) Then
+                Check_convex = 2
+                Exit Function
+            End If
+            ClipVector.Add(dx, dy)
+        Next
+        Dim Final_res = -1 * (ClipVector.i(ClipVector.n - 1) * ClipVector.j(0) - ClipVector.j(ClipVector.n - 1) * ClipVector.i(0))
+        If (indicator = 0 And Final_res < 0) Or (indicator = 1 And Final_res > 0) Then
+            Check_convex = 2
+            Exit Function
         End If
+        Find_Normal(indicator)
         Check_convex = indicator
     End Function
 
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles Me.Load
-
+        Me.pbCanvas.Image = New Bitmap(Me.pbCanvas.Width, Me.pbCanvas.Height)
         pbCanvas.BackColor = Color.White
 
     End Sub
@@ -166,6 +241,8 @@
                     If (PolyPreview.Count > 2) Then
                         Polygons = PolyPreview
                         PolyPreview = Nothing
+                        PolyVector = New Vector
+                        Create_PolyVector(PolyVector, Polygons)
                     End If
                 Else
                     ' Add a point to this polygon.
@@ -188,6 +265,8 @@
                 If (e.Button = MouseButtons.Right) Then
                     ' Finish this polygon.
                     If (ClippingWindowPreview.Count > 2) Then
+                        ClipVector = New Vector
+                        NormalClipVector = New Vector
                         Dim indicator As Integer = Check_convex(ClippingWindowPreview)
                         If (indicator = 0 Or indicator = 1) Then
                             ClippingWindow = ClippingWindowPreview
@@ -228,14 +307,34 @@
 
     Private Sub pbCanvas_Paint(sender As Object, e As PaintEventArgs) Handles pbCanvas.Paint
         'e.Graphics.SmoothingMode = SmoothingMode.AntiAlias
+        ClippedPoly = Clipping()
+        If (Polygons IsNot Nothing) Then
+            For i As Integer = 0 To Polygons.Count - 1
+                If i = Polygons.Count - 1 Then
+                    e.Graphics.DrawLine(Pens.Blue, Polygons(i), Polygons(0))
+                Else
+                    e.Graphics.DrawLine(Pens.Blue, Polygons(i), Polygons(i + 1))
+                End If
+            Next
+        End If
+        If (ClippingWindow IsNot Nothing) Then
+            For i As Integer = 0 To ClippingWindow.Count - 1
+                If i = ClippingWindow.Count - 1 Then
+                    e.Graphics.DrawLine(Pens.Black, ClippingWindow(i), ClippingWindow(0))
+                Else
+                    e.Graphics.DrawLine(Pens.Black, ClippingWindow(i), ClippingWindow(i + 1))
+                End If
+            Next
+        End If
         Try
-            e.Graphics.DrawPolygon(Pens.Blue, Polygons.ToArray())
+            For i As Integer = 0 To ClippedPoly.Count - 1
+                If i = ClippedPoly.Count - 1 Then
+                    e.Graphics.DrawLine(Pens.Red, ClippedPoly(i), ClippedPoly(0))
+                Else
+                    e.Graphics.DrawLine(Pens.Red, ClippedPoly(i), ClippedPoly(i + 1))
+                End If
+            Next
         Catch ex As Exception
-        End Try
-        Try
-            e.Graphics.DrawPolygon(Pens.Black, ClippingWindow.ToArray())
-        Catch ex As Exception
-
         End Try
         If (shape = "Polygon") Then
             ' Draw the new polygon.
@@ -262,7 +361,7 @@
                 ' Draw the new polygon.
                 If (ClippingWindowPreview.Count > 1) Then
                     e.Graphics.DrawLines(Pens.Gray,
-                        ClippingWindowPreview.ToArray())
+                    ClippingWindowPreview.ToArray())
                 End If
 
                 ' Draw the newest edge.
@@ -270,8 +369,8 @@
                     Using dashed_pen As New Pen(Color.Green)
                         dashed_pen.DashPattern = New Single() {3, 3}
                         e.Graphics.DrawLine(dashed_pen,
-                            ClippingWindowPreview(ClippingWindowPreview.Count - 1),
-                            NewPointClip)
+                        ClippingWindowPreview(ClippingWindowPreview.Count - 1),
+                        NewPointClip)
                     End Using
                 End If
             End If
@@ -292,6 +391,7 @@
 
     Private Sub Delete_Poly()
         Polygons = Nothing
+        ClippedPoly = Nothing
     End Sub
 
     Private Sub btnDelClip_Click(sender As Object, e As EventArgs) Handles btnDelClip.Click
@@ -307,6 +407,89 @@
     Private Sub btnClear_Click(sender As Object, e As EventArgs) Handles btnClear.Click
         Delete_Clip()
         Delete_Poly()
+        Me.pbCanvas.Image = New Bitmap(Me.pbCanvas.Width, Me.pbCanvas.Height)
         pbCanvas.Refresh()
+    End Sub
+
+    Private Sub btnRefresh_Click(sender As Object, e As EventArgs) Handles btnRefresh.Click
+        Delete_Clip()
+        ClippedPoly = Nothing
+        pbCanvas.Refresh()
+    End Sub
+    Private Sub btnSave_Click(sender As Object, e As EventArgs) Handles btnSave.Click
+        saveConfirm = "Hokhai"
+        Dim g As Graphics = Graphics.FromImage(pbCanvas.Image)
+        If (saveConfirm) = "Hokhai" Then
+            For i As Integer = 0 To Polygons.Count - 1
+                If i = Polygons.Count - 1 Then
+                    g.DrawLine(Pens.Blue, Polygons(i), Polygons(0))
+                Else
+                    g.DrawLine(Pens.Blue, Polygons(i), Polygons(i + 1))
+                End If
+            Next
+            For i As Integer = 0 To ClippingWindow.Count - 1
+                If i = ClippingWindow.Count - 1 Then
+                    g.DrawLine(Pens.Black, ClippingWindow(i), ClippingWindow(0))
+                Else
+                    g.DrawLine(Pens.Black, ClippingWindow(i), ClippingWindow(i + 1))
+                End If
+            Next
+            For i As Integer = 0 To ClippedPoly.Count - 1
+                If i = ClippedPoly.Count - 1 Then
+                    g.DrawLine(Pens.Red, ClippedPoly(i), ClippedPoly(0))
+                Else
+                    g.DrawLine(Pens.Red, ClippedPoly(i), ClippedPoly(i + 1))
+                End If
+            Next
+        End If
+
+        Dim savePic As New SaveFileDialog()
+        Dim defPath As String = "D:\Picture\"
+        Dim Directory As String = System.IO.Path.GetDirectoryName(defPath)
+
+        Try
+            With savePic
+                .Title = "Save Image As"
+                .Filter = "Jpg, Jpeg Images|*.jpg;*.jpeg|PNG Image|*.png|BMP Image|*.bmp"
+                .AddExtension = True
+                .DefaultExt = ".jpg"
+                .FileName = "picture.jpg"
+                .ValidateNames = True
+                .OverwritePrompt = True
+                .InitialDirectory = Directory
+                .RestoreDirectory = True
+
+                If .ShowDialog = DialogResult.OK Then
+                    If .FilterIndex = 1 Then
+                        pbCanvas.Image.Save(savePic.FileName, Imaging.ImageFormat.Jpeg)
+                    ElseIf .FilterIndex = 2 Then
+                        pbCanvas.Image.Save(savePic.FileName, Imaging.ImageFormat.Png)
+                    ElseIf .FilterIndex = 3 Then
+                        pbCanvas.Image.Save(savePic.FileName, Imaging.ImageFormat.Bmp)
+                    End If
+                Else
+                    Return
+                End If
+            End With
+        Catch ex As Exception
+            MsgBox("Error to save the image : " & ex.Message.ToString())
+        Finally
+            savePic.Dispose()
+        End Try
+        saveConfirm = "nope"
+        Me.pbCanvas.Image = New Bitmap(Me.pbCanvas.Width, Me.pbCanvas.Height)
+    End Sub
+    Public Sub LoadImage(ByVal pcBox As PictureBox)
+        Dim loadDia As New OpenFileDialog
+        loadDia.InitialDirectory = My.Computer.FileSystem.SpecialDirectories.MyPictures
+        loadDia.Filter = "Jpg, Jpeg Images|*.jpg;*.jpeg|PNG Image|*.png|BMP Image|*.bmp"
+        Dim result As DialogResult = loadDia.ShowDialog
+        If Not (pcBox) Is Nothing And loadDia.FileName <> String.Empty Then
+            pcBox.Image = Image.FromFile(loadDia.FileName)
+        End If
+    End Sub
+
+    Private Sub btnLoad_Click(sender As Object, e As EventArgs) Handles btnLoad.Click
+        LoadImage(pbCanvas)
     End Sub
 End Class

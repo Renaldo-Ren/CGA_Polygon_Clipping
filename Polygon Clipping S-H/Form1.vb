@@ -1,7 +1,8 @@
-﻿Public Class Form1 'test
+﻿Public Class Form1 
     Dim saveConfirm
     Dim _pen As Pen = New Pen(Color.Black, 3)
     Dim shape As String
+    Dim Poly_Type As String
     Private Polygons As List(Of Point) = Nothing
     Private ClippingWindow As List(Of Point) = Nothing
     Private ClippedPoly As New List(Of Point)
@@ -66,96 +67,103 @@
         Dot_product_vector_diff = v1.i(index1) * v2.i(index2) + v1.j(index1) * v2.j(index2)
     End Function
 
+    Private Sub Clip_step(ByRef Poly As List(Of Point), ByRef ClipPoly As List(Of Point), ByRef Vect As Vector, ByRef ClipVect As Vector, count As Integer)
+        Dim temp_vector As New Vector
+        Dim Temp_index As Integer = 0
+        point_indicator = New List(Of Integer)
+        Dim pivot = ClippingWindow(count)
+        Dim normal_i = NormalClipVector.i(count)
+        Dim normal_j = NormalClipVector.j(count)
+        Dim Temp_LPoints As List(Of Point)
+        Dim Temp_PVector As Vector
+        If count = 0 Then
+            Temp_LPoints = Poly
+            Temp_PVector = Vect
+        Else
+            Temp_LPoints = ClipPoly
+            Temp_PVector = ClipVect
+        End If
+        For Each p As Point In Temp_LPoints
+            Dim Temp_Vector_i = p.X - pivot.X
+            Dim Temp_Vector_j = p.Y - pivot.Y
+            Dim Dot = Dot_product(Temp_Vector_i, normal_i, Temp_Vector_j, normal_j)
+            If Dot >= 0 Then
+                point_indicator.Add(0)
+            Else
+                point_indicator.Add(1)
+            End If
+        Next
+
+        For i As Integer = 0 To point_indicator.Count - 1
+            If i = point_indicator.Count - 1 Then
+                If (point_indicator(i) = 0 And point_indicator(0) = 0) Then
+                    NewClippedPoly.Add(Temp_LPoints(0))
+                ElseIf (point_indicator(i) = 0 And point_indicator(0) = 1) Then
+                    temp_vector.Add(Temp_LPoints(i).X - ClippingWindow(count).X, Temp_LPoints(i).Y - ClippingWindow(count).Y)
+                    Dim t = Dot_product_vector_diff(temp_vector, NormalClipVector, Temp_index, count) / Dot_product_vector_diff(Temp_PVector, NormalClipVector, i, count)
+                    If (t < 0) Then
+                        t *= -1
+                    End If
+                    Dim temp_x = Temp_LPoints(i).X + t * (Temp_LPoints(0).X - Temp_LPoints(i).X)
+                    Dim temp_y = Temp_LPoints(i).Y + t * (Temp_LPoints(0).Y - Temp_LPoints(i).Y)
+                    Dim temp = New Point(temp_x, temp_y)
+                    NewClippedPoly.Add(temp)
+                    Temp_index += 1
+                ElseIf (point_indicator(i) = 1 And point_indicator(0) = 0) Then
+                    temp_vector.Add(Temp_LPoints(i).X - ClippingWindow(count).X, Temp_LPoints(i).Y - ClippingWindow(count).Y)
+                    Dim t = Dot_product_vector_diff(temp_vector, NormalClipVector, Temp_index, count) / Dot_product_vector_diff(Temp_PVector, NormalClipVector, i, count)
+                    If (t < 0) Then
+                        t *= -1
+                    End If
+                    Dim temp_x = Temp_LPoints(i).X + t * (Temp_LPoints(0).X - Temp_LPoints(i).X)
+                    Dim temp_y = Temp_LPoints(i).Y + t * (Temp_LPoints(0).Y - Temp_LPoints(i).Y)
+                    Dim temp = New Point(temp_x, temp_y)
+                    NewClippedPoly.Add(temp)
+                    NewClippedPoly.Add(Temp_LPoints(0))
+                    Temp_index += 1
+                End If
+
+            Else
+                If (point_indicator(i) = 0 And point_indicator(i + 1) = 0) Then
+                    NewClippedPoly.Add(Temp_LPoints(i + 1))
+                ElseIf (point_indicator(i) = 0 And point_indicator(i + 1) = 1) Then
+                    temp_vector.Add(Temp_LPoints(i).X - ClippingWindow(count).X, Temp_LPoints(i).Y - ClippingWindow(count).Y)
+                    Dim t = Dot_product_vector_diff(temp_vector, NormalClipVector, Temp_index, count) / Dot_product_vector_diff(Temp_PVector, NormalClipVector, i, count)
+                    If (t < 0) Then
+                        t *= -1
+                    End If
+                    Dim temp_x = Temp_LPoints(i).X + t * (Temp_LPoints(i + 1).X - Temp_LPoints(i).X)
+                    Dim temp_y = Temp_LPoints(i).Y + t * (Temp_LPoints(i + 1).Y - Temp_LPoints(i).Y)
+                    Dim temp = New Point(temp_x, temp_y)
+                    NewClippedPoly.Add(temp)
+                    Temp_index += 1
+                ElseIf (point_indicator(i) = 1 And point_indicator(i + 1) = 0) Then
+                    temp_vector.Add(Temp_LPoints(i).X - ClippingWindow(count).X, Temp_LPoints(i).Y - ClippingWindow(count).Y)
+                    Dim t = Dot_product_vector_diff(temp_vector, NormalClipVector, Temp_index, count) / Dot_product_vector_diff(Temp_PVector, NormalClipVector, i, count)
+                    If (t < 0) Then
+                        t *= -1
+                    End If
+                    Dim temp_x = Temp_LPoints(i).X + t * (Temp_LPoints(i + 1).X - Temp_LPoints(i).X)
+                    Dim temp_y = Temp_LPoints(i).Y + t * (Temp_LPoints(i + 1).Y - Temp_LPoints(i).Y)
+                    Dim temp = New Point(temp_x, temp_y)
+                    NewClippedPoly.Add(temp)
+                    NewClippedPoly.Add(Temp_LPoints(i + 1))
+                    Temp_index += 1
+                End If
+            End If
+        Next
+    End Sub
+
     Private Sub Multi_Clipping(ByRef Poly As List(Of List(Of Point)), ByRef ClipPoly As List(Of List(Of Point)), ByRef Vect As List(Of Vector), ByRef ClipVect As List(Of Vector))
         Dim temp_vector As New Vector
         Try
             For List_index As Integer = 0 To Poly.Count - 1
                 For count As Integer = 0 To NormalClipVector.n - 1
-                    Dim Temp_index As Integer = 0
-                    point_indicator = New List(Of Integer)
-                    Dim pivot = ClippingWindow(count)
-                    Dim normal_i = NormalClipVector.i(count)
-                    Dim normal_j = NormalClipVector.j(count)
-                    Dim Temp_LPoints As List(Of Point)
-                    Dim Temp_PVector As Vector
-                    If count = 0 Then
-                        Temp_LPoints = Poly(List_index)
-                        Temp_PVector = Vect(List_index)
-                    Else
-                        Temp_LPoints = ClipPoly(List_index)
-                        Temp_PVector = ClipVect(List_index)
-                    End If
-                    For Each p As Point In Temp_LPoints
-                        Dim Temp_Vector_i = p.X - pivot.X
-                        Dim Temp_Vector_j = p.Y - pivot.Y
-                        Dim Dot = Dot_product(Temp_Vector_i, normal_i, Temp_Vector_j, normal_j)
-                        If Dot >= 0 Then
-                            point_indicator.Add(0)
-                        Else
-                            point_indicator.Add(1)
-                        End If
-                    Next
-
-                    For i As Integer = 0 To point_indicator.Count - 1
-                        If i = point_indicator.Count - 1 Then
-                            If (point_indicator(i) = 0 And point_indicator(0) = 0) Then
-                                NewClippedPoly.Add(Temp_LPoints(0))
-                            ElseIf (point_indicator(i) = 0 And point_indicator(0) = 1) Then
-                                temp_vector.Add(Temp_LPoints(i).X - ClippingWindow(count).X, Temp_LPoints(i).Y - ClippingWindow(count).Y)
-                                Dim t = Dot_product_vector_diff(temp_vector, NormalClipVector, Temp_index, count) / Dot_product_vector_diff(Temp_PVector, NormalClipVector, i, count)
-                                If (t < 0) Then
-                                    t *= -1
-                                End If
-                                Dim temp_x = Temp_LPoints(i).X + t * (Temp_LPoints(0).X - Temp_LPoints(i).X)
-                                Dim temp_y = Temp_LPoints(i).Y + t * (Temp_LPoints(0).Y - Temp_LPoints(i).Y)
-                                Dim temp = New Point(temp_x, temp_y)
-                                NewClippedPoly.Add(temp)
-                                Temp_index += 1
-                            ElseIf (point_indicator(i) = 1 And point_indicator(0) = 0) Then
-                                temp_vector.Add(Temp_LPoints(i).X - ClippingWindow(count).X, Temp_LPoints(i).Y - ClippingWindow(count).Y)
-                                Dim t = Dot_product_vector_diff(temp_vector, NormalClipVector, Temp_index, count) / Dot_product_vector_diff(Temp_PVector, NormalClipVector, i, count)
-                                If (t < 0) Then
-                                    t *= -1
-                                End If
-                                Dim temp_x = Temp_LPoints(i).X + t * (Temp_LPoints(0).X - Temp_LPoints(i).X)
-                                Dim temp_y = Temp_LPoints(i).Y + t * (Temp_LPoints(0).Y - Temp_LPoints(i).Y)
-                                Dim temp = New Point(temp_x, temp_y)
-                                NewClippedPoly.Add(temp)
-                                NewClippedPoly.Add(Temp_LPoints(0))
-                                Temp_index += 1
-                            End If
-
-                        Else
-                            If (point_indicator(i) = 0 And point_indicator(i + 1) = 0) Then
-                                NewClippedPoly.Add(Temp_LPoints(i + 1))
-                            ElseIf (point_indicator(i) = 0 And point_indicator(i + 1) = 1) Then
-                                temp_vector.Add(Temp_LPoints(i).X - ClippingWindow(count).X, Temp_LPoints(i).Y - ClippingWindow(count).Y)
-                                Dim t = Dot_product_vector_diff(temp_vector, NormalClipVector, Temp_index, count) / Dot_product_vector_diff(Temp_PVector, NormalClipVector, i, count)
-                                If (t < 0) Then
-                                    t *= -1
-                                End If
-                                Dim temp_x = Temp_LPoints(i).X + t * (Temp_LPoints(i + 1).X - Temp_LPoints(i).X)
-                                Dim temp_y = Temp_LPoints(i).Y + t * (Temp_LPoints(i + 1).Y - Temp_LPoints(i).Y)
-                                Dim temp = New Point(temp_x, temp_y)
-                                NewClippedPoly.Add(temp)
-                                Temp_index += 1
-                            ElseIf (point_indicator(i) = 1 And point_indicator(i + 1) = 0) Then
-                                temp_vector.Add(Temp_LPoints(i).X - ClippingWindow(count).X, Temp_LPoints(i).Y - ClippingWindow(count).Y)
-                                Dim t = Dot_product_vector_diff(temp_vector, NormalClipVector, Temp_index, count) / Dot_product_vector_diff(Temp_PVector, NormalClipVector, i, count)
-                                If (t < 0) Then
-                                    t *= -1
-                                End If
-                                Dim temp_x = Temp_LPoints(i).X + t * (Temp_LPoints(i + 1).X - Temp_LPoints(i).X)
-                                Dim temp_y = Temp_LPoints(i).Y + t * (Temp_LPoints(i + 1).Y - Temp_LPoints(i).Y)
-                                Dim temp = New Point(temp_x, temp_y)
-                                NewClippedPoly.Add(temp)
-                                NewClippedPoly.Add(Temp_LPoints(i + 1))
-                                Temp_index += 1
-                            End If
-                        End If
-                    Next
-                    temp_vector = New Vector
-
+                    Try
+                        Clip_step(Poly(List_index), ClipPoly(List_index), Vect(List_index), ClipVect(List_index), count)
+                    Catch ex As Exception
+                        Clip_step(Poly(List_index), Poly(List_index), Vect(List_index), Vect(List_index), count)
+                    End Try
                     Try
                         ClipPoly(List_index) = NewClippedPoly
                     Catch ex As Exception
@@ -166,7 +174,6 @@
                     Catch ex As Exception
                         ClipVect.Add(Create_PolyVector(ClipPoly(List_index)))
                     End Try
-
                     NewClippedPoly = New List(Of Point)
                 Next
             Next
@@ -180,90 +187,7 @@
         Dim temp_vector As New Vector
         Try
             For count As Integer = 0 To NormalClipVector.n - 1
-                Dim Temp_index As Integer = 0
-                point_indicator = New List(Of Integer)
-                Dim pivot = ClippingWindow(count)
-                Dim normal_i = NormalClipVector.i(count)
-                Dim normal_j = NormalClipVector.j(count)
-                Dim Temp_LPoints As List(Of Point)
-                Dim Temp_PVector As Vector
-                If count = 0 Then
-                    Temp_LPoints = Poly
-                    Temp_PVector = Vect
-                Else
-                    Temp_LPoints = ClipPoly
-                    Temp_PVector = ClipVect
-                End If
-                For Each p As Point In Temp_LPoints
-                    Dim Temp_Vector_i = p.X - pivot.X
-                    Dim Temp_Vector_j = p.Y - pivot.Y
-                    Dim Dot = Dot_product(Temp_Vector_i, normal_i, Temp_Vector_j, normal_j)
-                    If Dot >= 0 Then
-                        point_indicator.Add(0)
-                    Else
-                        point_indicator.Add(1)
-                    End If
-                Next
-
-                For i As Integer = 0 To point_indicator.Count - 1
-                    If i = point_indicator.Count - 1 Then
-                        If (point_indicator(i) = 0 And point_indicator(0) = 0) Then
-                            NewClippedPoly.Add(Temp_LPoints(0))
-                        ElseIf (point_indicator(i) = 0 And point_indicator(0) = 1) Then
-                            temp_vector.Add(Temp_LPoints(i).X - ClippingWindow(count).X, Temp_LPoints(i).Y - ClippingWindow(count).Y)
-                            Dim t = Dot_product_vector_diff(temp_vector, NormalClipVector, Temp_index, count) / Dot_product_vector_diff(Temp_PVector, NormalClipVector, i, count)
-                            If (t < 0) Then
-                                t *= -1
-                            End If
-                            Dim temp_x = Temp_LPoints(i).X + t * (Temp_LPoints(0).X - Temp_LPoints(i).X)
-                            Dim temp_y = Temp_LPoints(i).Y + t * (Temp_LPoints(0).Y - Temp_LPoints(i).Y)
-                            Dim temp = New Point(temp_x, temp_y)
-                            NewClippedPoly.Add(temp)
-                            Temp_index += 1
-                        ElseIf (point_indicator(i) = 1 And point_indicator(0) = 0) Then
-                            temp_vector.Add(Temp_LPoints(i).X - ClippingWindow(count).X, Temp_LPoints(i).Y - ClippingWindow(count).Y)
-                            Dim t = Dot_product_vector_diff(temp_vector, NormalClipVector, Temp_index, count) / Dot_product_vector_diff(Temp_PVector, NormalClipVector, i, count)
-                            If (t < 0) Then
-                                t *= -1
-                            End If
-                            Dim temp_x = Temp_LPoints(i).X + t * (Temp_LPoints(0).X - Temp_LPoints(i).X)
-                            Dim temp_y = Temp_LPoints(i).Y + t * (Temp_LPoints(0).Y - Temp_LPoints(i).Y)
-                            Dim temp = New Point(temp_x, temp_y)
-                            NewClippedPoly.Add(temp)
-                            NewClippedPoly.Add(Temp_LPoints(0))
-                            Temp_index += 1
-                        End If
-
-                    Else
-                        If (point_indicator(i) = 0 And point_indicator(i + 1) = 0) Then
-                            NewClippedPoly.Add(Temp_LPoints(i + 1))
-                        ElseIf (point_indicator(i) = 0 And point_indicator(i + 1) = 1) Then
-                            temp_vector.Add(Temp_LPoints(i).X - ClippingWindow(count).X, Temp_LPoints(i).Y - ClippingWindow(count).Y)
-                            Dim t = Dot_product_vector_diff(temp_vector, NormalClipVector, Temp_index, count) / Dot_product_vector_diff(Temp_PVector, NormalClipVector, i, count)
-                            If (t < 0) Then
-                                t *= -1
-                            End If
-                            Dim temp_x = Temp_LPoints(i).X + t * (Temp_LPoints(i + 1).X - Temp_LPoints(i).X)
-                            Dim temp_y = Temp_LPoints(i).Y + t * (Temp_LPoints(i + 1).Y - Temp_LPoints(i).Y)
-                            Dim temp = New Point(temp_x, temp_y)
-                            NewClippedPoly.Add(temp)
-                            Temp_index += 1
-                        ElseIf (point_indicator(i) = 1 And point_indicator(i + 1) = 0) Then
-                            temp_vector.Add(Temp_LPoints(i).X - ClippingWindow(count).X, Temp_LPoints(i).Y - ClippingWindow(count).Y)
-                            Dim t = Dot_product_vector_diff(temp_vector, NormalClipVector, Temp_index, count) / Dot_product_vector_diff(Temp_PVector, NormalClipVector, i, count)
-                            If (t < 0) Then
-                                t *= -1
-                            End If
-                            Dim temp_x = Temp_LPoints(i).X + t * (Temp_LPoints(i + 1).X - Temp_LPoints(i).X)
-                            Dim temp_y = Temp_LPoints(i).Y + t * (Temp_LPoints(i + 1).Y - Temp_LPoints(i).Y)
-                            Dim temp = New Point(temp_x, temp_y)
-                            NewClippedPoly.Add(temp)
-                            NewClippedPoly.Add(Temp_LPoints(i + 1))
-                            Temp_index += 1
-                        End If
-                    End If
-                Next
-                temp_vector = New Vector
+                Clip_step(Poly, ClipPoly, Vect, ClipVect, count)
                 ClipPoly = NewClippedPoly
                 ClipVect = Create_PolyVector(ClipPoly)
                 NewClippedPoly = New List(Of Point)
@@ -492,13 +416,33 @@
                 End If
             End If
         ElseIf (shape = "Rectangle") Then
-            If (Polygons IsNot Nothing) Then
-                e.Graphics.DrawPolygon(Pens.Blue, Polygons.ToArray())
+
+            If Poly_Type = "Polygon" Then
+                If (Polygons IsNot Nothing) Then
+                    e.Graphics.DrawPolygon(Pens.Blue, Polygons.ToArray())
+                End If
+                Try
+                    e.Graphics.DrawPolygon(Pens.Red, ClippedPoly.ToArray())
+                Catch ex As Exception
+                End Try
+            Else
+                Try
+                    For Each Poly In Multi_Polygons
+                        e.Graphics.DrawPolygon(Pens.Purple, Poly.ToArray())
+                    Next
+                Catch ex As Exception
+
+                End Try
+                Try
+                    For Each ClipPoly In Multi_ClippedPoly
+                        Try
+                            e.Graphics.DrawPolygon(Pens.Orange, ClipPoly.ToArray())
+                        Catch ex As Exception
+                        End Try
+                    Next
+                Catch ex As Exception
+                End Try
             End If
-            Try
-                e.Graphics.DrawPolygon(Pens.Red, ClippedPoly.ToArray())
-            Catch ex As Exception
-            End Try
             ' Draw the new polygon.
             If (ClippingWindowPreview IsNot Nothing) Then
                 ' Draw the new polygon.
@@ -558,6 +502,7 @@
 
     Private Sub btnPoly_MouseClick(sender As Object, e As MouseEventArgs) Handles btnPoly.MouseClick
         shape = "Polygon"
+        Poly_Type = "Polygon"
     End Sub
 
     Private Sub btnRect_MouseClick(sender As Object, e As MouseEventArgs) Handles btnRect.MouseClick
@@ -570,6 +515,11 @@
 
     Private Sub Delete_Poly()
         Polygons = Nothing
+    End Sub
+
+    Private Sub Delete_Multi()
+        Multi_Polygons.Clear()
+        Multi_PolyVector.Clear()
     End Sub
 
     Private Sub btnDelClip_Click(sender As Object, e As EventArgs) Handles btnDelClip.Click
@@ -585,17 +535,19 @@
     Private Sub btnClear_Click(sender As Object, e As EventArgs) Handles btnClear.Click
         Delete_Clip()
         Delete_Poly()
+        Me.pbCanvas.Image = New Bitmap(Me.pbCanvas.Width, Me.pbCanvas.Height)
+        ClippedPoly.Clear()
+        Multi_ClippedPoly.Clear()
         pbCanvas.Refresh()
     End Sub
 
     Private Sub btnMulti_Click(sender As Object, e As EventArgs) Handles btnMulti.Click
         shape = "Multi"
+        Poly_Type = "Multi"
     End Sub
 
     Private Sub btnClearMulti_Click(sender As Object, e As EventArgs) Handles btnClearMulti.Click
-        Multi_Polygons.Clear()
-        Multi_PolyVector.Clear()
-        Multi_ClippedPoly.Clear()
+        Delete_Multi()
         pbCanvas.Refresh()
     End Sub
 
@@ -674,5 +626,12 @@
 
     Private Sub btnLoad_Click(sender As Object, e As EventArgs) Handles btnLoad.Click
         LoadImage(pbCanvas)
+    End Sub
+
+    Private Sub btnRefresh_Click(sender As Object, e As EventArgs) Handles btnRefresh.Click
+        Delete_Clip()
+        ClippedPoly.Clear()
+        Multi_ClippedPoly.Clear()
+        pbCanvas.Refresh()
     End Sub
 End Class

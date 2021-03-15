@@ -127,9 +127,9 @@ Partial Class Form1
         '
         'btnClearMulti
         '
-        Me.btnClearMulti.Location = New System.Drawing.Point(546, 541)
+        Me.btnClearMulti.Location = New System.Drawing.Point(546, 535)
         Me.btnClearMulti.Name = "btnClearMulti"
-        Me.btnClearMulti.Size = New System.Drawing.Size(146, 23)
+        Me.btnClearMulti.Size = New System.Drawing.Size(147, 29)
         Me.btnClearMulti.TabIndex = 9
         Me.btnClearMulti.Text = "Clear Multi"
         Me.btnClearMulti.UseVisualStyleBackColor = True

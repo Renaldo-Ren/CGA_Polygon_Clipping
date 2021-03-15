@@ -270,7 +270,7 @@
 
     Private Sub pbCanvas_MouseDown(sender As Object, e As MouseEventArgs) Handles pbCanvas.MouseDown
         If (shape = "Polygon") Then
-            ' See if we are already drawing a polygon.
+            ' See if we are already drawing a polygon
             If (PolyPreview IsNot Nothing) Then
                 ' We are already drawing a polygon.
                 ' If it's the right mouse button, finish this

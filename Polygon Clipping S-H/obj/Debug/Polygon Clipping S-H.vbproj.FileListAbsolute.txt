@@ -46,3 +46,15 @@ C:\Users\FX505GD\Documents\GitHub\CGA_Polygon_Clipping\Polygon Clipping S-H\obj\
 C:\Users\FX505GD\Documents\GitHub\CGA_Polygon_Clipping\Polygon Clipping S-H\obj\Debug\Polygon Clipping S-H.exe
 C:\Users\FX505GD\Documents\GitHub\CGA_Polygon_Clipping\Polygon Clipping S-H\obj\Debug\Polygon Clipping S-H.xml
 C:\Users\FX505GD\Documents\GitHub\CGA_Polygon_Clipping\Polygon Clipping S-H\obj\Debug\Polygon Clipping S-H.pdb
+E:\Semester5\CGA\CGA_Polygon_Clipping\Polygon Clipping S-H\bin\Debug\Polygon Clipping S-H.exe.config
+E:\Semester5\CGA\CGA_Polygon_Clipping\Polygon Clipping S-H\bin\Debug\Polygon Clipping S-H.exe
+E:\Semester5\CGA\CGA_Polygon_Clipping\Polygon Clipping S-H\bin\Debug\Polygon Clipping S-H.pdb
+E:\Semester5\CGA\CGA_Polygon_Clipping\Polygon Clipping S-H\bin\Debug\Polygon Clipping S-H.xml
+E:\Semester5\CGA\CGA_Polygon_Clipping\Polygon Clipping S-H\obj\Debug\Polygon Clipping S-H.vbprojAssemblyReference.cache
+E:\Semester5\CGA\CGA_Polygon_Clipping\Polygon Clipping S-H\obj\Debug\Polygon_Clipping_S_H.Form1.resources
+E:\Semester5\CGA\CGA_Polygon_Clipping\Polygon Clipping S-H\obj\Debug\Polygon_Clipping_S_H.Resources.resources
+E:\Semester5\CGA\CGA_Polygon_Clipping\Polygon Clipping S-H\obj\Debug\Polygon Clipping S-H.vbproj.GenerateResource.cache
+E:\Semester5\CGA\CGA_Polygon_Clipping\Polygon Clipping S-H\obj\Debug\Polygon Clipping S-H.vbproj.CoreCompileInputs.cache
+E:\Semester5\CGA\CGA_Polygon_Clipping\Polygon Clipping S-H\obj\Debug\Polygon Clipping S-H.exe
+E:\Semester5\CGA\CGA_Polygon_Clipping\Polygon Clipping S-H\obj\Debug\Polygon Clipping S-H.xml
+E:\Semester5\CGA\CGA_Polygon_Clipping\Polygon Clipping S-H\obj\Debug\Polygon Clipping S-H.pdb

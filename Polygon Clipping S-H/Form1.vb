@@ -1,4 +1,4 @@
-﻿Public Class Form1 
+﻿Public Class Form1
     Dim saveConfirm
     Dim _pen As Pen = New Pen(Color.Black, 3)
     Dim shape As String
@@ -555,30 +555,47 @@
     End Sub
 
     Private Sub btnSave_Click(sender As Object, e As EventArgs) Handles btnSave.Click
+        Me.pbCanvas.Image = New Bitmap(Me.pbCanvas.Width, Me.pbCanvas.Height)
         saveConfirm = "Hokhai"
         Dim g As Graphics = Graphics.FromImage(pbCanvas.Image)
         If (saveConfirm) = "Hokhai" Then
-            For i As Integer = 0 To Polygons.Count - 1
-                If i = Polygons.Count - 1 Then
-                    g.DrawLine(Pens.Blue, Polygons(i), Polygons(0))
-                Else
-                    g.DrawLine(Pens.Blue, Polygons(i), Polygons(i + 1))
-                End If
-            Next
-            For i As Integer = 0 To ClippingWindow.Count - 1
-                If i = ClippingWindow.Count - 1 Then
-                    g.DrawLine(Pens.Black, ClippingWindow(i), ClippingWindow(0))
-                Else
-                    g.DrawLine(Pens.Black, ClippingWindow(i), ClippingWindow(i + 1))
-                End If
-            Next
-            For i As Integer = 0 To ClippedPoly.Count - 1
-                If i = ClippedPoly.Count - 1 Then
-                    g.DrawLine(Pens.Red, ClippedPoly(i), ClippedPoly(0))
-                Else
-                    g.DrawLine(Pens.Red, ClippedPoly(i), ClippedPoly(i + 1))
-                End If
-            Next
+            If (shape = "Polygon") Then
+                For i As Integer = 0 To Polygons.Count - 1
+                    If i = Polygons.Count - 1 Then
+                        g.DrawLine(Pens.Blue, Polygons(i), Polygons(0))
+                    Else
+                        g.DrawLine(Pens.Blue, Polygons(i), Polygons(i + 1))
+                    End If
+                Next
+                For i As Integer = 0 To ClippingWindow.Count - 1
+                    If i = ClippingWindow.Count - 1 Then
+                        g.DrawLine(Pens.Black, ClippingWindow(i), ClippingWindow(0))
+                    Else
+                        g.DrawLine(Pens.Black, ClippingWindow(i), ClippingWindow(i + 1))
+                    End If
+                Next
+                For i As Integer = 0 To ClippedPoly.Count - 1
+                    If i = ClippedPoly.Count - 1 Then
+                        g.DrawLine(Pens.Red, ClippedPoly(i), ClippedPoly(0))
+                    Else
+                        g.DrawLine(Pens.Red, ClippedPoly(i), ClippedPoly(i + 1))
+                    End If
+                Next
+            ElseIf (shape = "Multi") Then
+                g.DrawPolygon(Pens.Black, ClippingWindow.ToArray())
+                For Each ClipPoly In Multi_ClippedPoly
+                    Try
+                        g.DrawPolygon(Pens.Orange, ClipPoly.ToArray())
+                    Catch ex As Exception
+                    End Try
+                Next
+                Try
+                    For Each Poly In Multi_Polygons
+                        g.DrawPolygon(Pens.Purple, Poly.ToArray())
+                    Next
+                Catch ex As Exception
+                End Try
+            End If
         End If
 
         Dim savePic As New SaveFileDialog()
@@ -588,10 +605,10 @@
         Try
             With savePic
                 .Title = "Save Image As"
-                .Filter = "Jpg, Jpeg Images|*.jpg;*.jpeg|PNG Image|*.png|BMP Image|*.bmp"
+                .Filter = "PNG Image|*.png|Jpg, Jpeg Images|*.jpg;*.jpeg|BMP Image|*.bmp"
                 .AddExtension = True
-                .DefaultExt = ".jpg"
-                .FileName = "picture.jpg"
+                .DefaultExt = ".png"
+                .FileName = "picture.png"
                 .ValidateNames = True
                 .OverwritePrompt = True
                 .InitialDirectory = Directory
@@ -599,9 +616,9 @@
 
                 If .ShowDialog = DialogResult.OK Then
                     If .FilterIndex = 1 Then
-                        pbCanvas.Image.Save(savePic.FileName, Imaging.ImageFormat.Jpeg)
-                    ElseIf .FilterIndex = 2 Then
                         pbCanvas.Image.Save(savePic.FileName, Imaging.ImageFormat.Png)
+                    ElseIf .FilterIndex = 2 Then
+                        pbCanvas.Image.Save(savePic.FileName, Imaging.ImageFormat.Jpeg)
                     ElseIf .FilterIndex = 3 Then
                         pbCanvas.Image.Save(savePic.FileName, Imaging.ImageFormat.Bmp)
                     End If
@@ -615,7 +632,6 @@
             savePic.Dispose()
         End Try
         saveConfirm = "nope"
-        Me.pbCanvas.Image = New Bitmap(Me.pbCanvas.Width, Me.pbCanvas.Height)
     End Sub
     Public Sub LoadImage(ByVal pcBox As PictureBox)
         Dim loadDia As New OpenFileDialog

@@ -386,15 +386,33 @@
 
         End Try
         If (ClippingWindow IsNot Nothing) Then
-            e.Graphics.DrawPolygon(Pens.Black, ClippingWindow.ToArray())
+            For i As Integer = 0 To ClippingWindow.Count - 1
+                If i = ClippingWindow.Count - 1 Then
+                    e.Graphics.DrawLine(Pens.Black, ClippingWindow(i), ClippingWindow(0))
+                Else
+                    e.Graphics.DrawLine(Pens.Black, ClippingWindow(i), ClippingWindow(i + 1))
+                End If
+            Next
         End If
 
         If (shape = "Polygon") Then
             If (Polygons IsNot Nothing) Then
-                e.Graphics.DrawPolygon(Pens.Blue, Polygons.ToArray())
+                For i As Integer = 0 To Polygons.Count - 1
+                    If i = Polygons.Count - 1 Then
+                        e.Graphics.DrawLine(Pens.Blue, Polygons(i), Polygons(0))
+                    Else
+                        e.Graphics.DrawLine(Pens.Blue, Polygons(i), Polygons(i + 1))
+                    End If
+                Next
             End If
             Try
-                e.Graphics.DrawPolygon(Pens.Red, ClippedPoly.ToArray())
+                For i As Integer = 0 To ClippedPoly.Count - 1
+                    If i = ClippedPoly.Count - 1 Then
+                        e.Graphics.DrawLine(Pens.Red, ClippedPoly(i), ClippedPoly(0))
+                    Else
+                        e.Graphics.DrawLine(Pens.Red, ClippedPoly(i), ClippedPoly(i + 1))
+                    End If
+                Next
             Catch ex As Exception
             End Try
             ' Draw the new polygon.
@@ -419,16 +437,34 @@
 
             If Poly_Type = "Polygon" Then
                 If (Polygons IsNot Nothing) Then
-                    e.Graphics.DrawPolygon(Pens.Blue, Polygons.ToArray())
+                    For i As Integer = 0 To Polygons.Count - 1
+                        If i = Polygons.Count - 1 Then
+                            e.Graphics.DrawLine(Pens.Blue, Polygons(i), Polygons(0))
+                        Else
+                            e.Graphics.DrawLine(Pens.Blue, Polygons(i), Polygons(i + 1))
+                        End If
+                    Next
                 End If
                 Try
-                    e.Graphics.DrawPolygon(Pens.Red, ClippedPoly.ToArray())
+                    For i As Integer = 0 To ClippedPoly.Count - 1
+                        If i = ClippedPoly.Count - 1 Then
+                            e.Graphics.DrawLine(Pens.Red, ClippedPoly(i), ClippedPoly(0))
+                        Else
+                            e.Graphics.DrawLine(Pens.Red, ClippedPoly(i), ClippedPoly(i + 1))
+                        End If
+                    Next
                 Catch ex As Exception
                 End Try
             Else
                 Try
                     For Each Poly In Multi_Polygons
-                        e.Graphics.DrawPolygon(Pens.Purple, Poly.ToArray())
+                        For i As Integer = 0 To Poly.Count - 1
+                            If i = Poly.Count - 1 Then
+                                e.Graphics.DrawLine(Pens.Purple, Poly(i), Poly(0))
+                            Else
+                                e.Graphics.DrawLine(Pens.Purple, Poly(i), Poly(i + 1))
+                            End If
+                        Next
                     Next
                 Catch ex As Exception
 
@@ -436,7 +472,13 @@
                 Try
                     For Each ClipPoly In Multi_ClippedPoly
                         Try
-                            e.Graphics.DrawPolygon(Pens.Orange, ClipPoly.ToArray())
+                            For i As Integer = 0 To ClipPoly.Count - 1
+                                If i = ClipPoly.Count - 1 Then
+                                    e.Graphics.DrawLine(Pens.Orange, ClipPoly(i), ClipPoly(0))
+                                Else
+                                    e.Graphics.DrawLine(Pens.Orange, ClipPoly(i), ClipPoly(i + 1))
+                                End If
+                            Next
                         Catch ex As Exception
                         End Try
                     Next
@@ -464,7 +506,13 @@
         ElseIf (shape = "Multi") Then
             Try
                 For Each Poly In Multi_Polygons
-                    e.Graphics.DrawPolygon(Pens.Purple, Poly.ToArray())
+                    For i As Integer = 0 To Poly.Count - 1
+                        If i = Poly.Count - 1 Then
+                            e.Graphics.DrawLine(Pens.Purple, Poly(i), Poly(0))
+                        Else
+                            e.Graphics.DrawLine(Pens.Purple, Poly(i), Poly(i + 1))
+                        End If
+                    Next
                 Next
             Catch ex As Exception
 
@@ -472,7 +520,13 @@
             Try
                 For Each ClipPoly In Multi_ClippedPoly
                     Try
-                        e.Graphics.DrawPolygon(Pens.Orange, ClipPoly.ToArray())
+                        For i As Integer = 0 To ClipPoly.Count - 1
+                            If i = ClipPoly.Count - 1 Then
+                                e.Graphics.DrawLine(Pens.Orange, ClipPoly(i), ClipPoly(0))
+                            Else
+                                e.Graphics.DrawLine(Pens.Orange, ClipPoly(i), ClipPoly(i + 1))
+                            End If
+                        Next
                     Catch ex As Exception
 
                     End Try
@@ -582,16 +636,34 @@
                     End If
                 Next
             ElseIf (shape = "Multi") Then
-                g.DrawPolygon(Pens.Black, ClippingWindow.ToArray())
+                For i As Integer = 0 To ClippingWindow.Count - 1
+                    If i = ClippingWindow.Count - 1 Then
+                        g.DrawLine(Pens.Black, ClippingWindow(i), ClippingWindow(0))
+                    Else
+                        g.DrawLine(Pens.Black, ClippingWindow(i), ClippingWindow(i + 1))
+                    End If
+                Next
                 For Each ClipPoly In Multi_ClippedPoly
                     Try
-                        g.DrawPolygon(Pens.Orange, ClipPoly.ToArray())
+                        For i As Integer = 0 To ClipPoly.Count - 1
+                            If i = ClipPoly.Count - 1 Then
+                                g.DrawLine(Pens.Orange, ClipPoly(i), ClipPoly(0))
+                            Else
+                                g.DrawLine(Pens.Orange, ClipPoly(i), ClipPoly(i + 1))
+                            End If
+                        Next
                     Catch ex As Exception
                     End Try
                 Next
                 Try
                     For Each Poly In Multi_Polygons
-                        g.DrawPolygon(Pens.Purple, Poly.ToArray())
+                        For i As Integer = 0 To Poly.Count - 1
+                            If i = Poly.Count - 1 Then
+                                g.DrawLine(Pens.Purple, Poly(i), Poly(0))
+                            Else
+                                g.DrawLine(Pens.Purple, Poly(i), Poly(i + 1))
+                            End If
+                        Next
                     Next
                 Catch ex As Exception
                 End Try

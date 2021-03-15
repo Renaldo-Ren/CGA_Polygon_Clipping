@@ -503,10 +503,12 @@
     Private Sub btnPoly_MouseClick(sender As Object, e As MouseEventArgs) Handles btnPoly.MouseClick
         shape = "Polygon"
         Poly_Type = "Polygon"
+        pbCanvas.Refresh()
     End Sub
 
     Private Sub btnRect_MouseClick(sender As Object, e As MouseEventArgs) Handles btnRect.MouseClick
         shape = "Rectangle"
+        pbCanvas.Refresh()
     End Sub
 
     Private Sub Delete_Clip()
@@ -544,6 +546,7 @@
     Private Sub btnMulti_Click(sender As Object, e As EventArgs) Handles btnMulti.Click
         shape = "Multi"
         Poly_Type = "Multi"
+        pbCanvas.Refresh()
     End Sub
 
     Private Sub btnClearMulti_Click(sender As Object, e As EventArgs) Handles btnClearMulti.Click

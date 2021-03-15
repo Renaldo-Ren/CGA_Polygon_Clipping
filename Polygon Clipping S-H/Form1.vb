@@ -593,6 +593,7 @@
         Delete_Poly()
         Me.pbCanvas.Image = New Bitmap(Me.pbCanvas.Width, Me.pbCanvas.Height)
         ClippedPoly.Clear()
+        Multi_Polygons.Clear()
         Multi_ClippedPoly.Clear()
         pbCanvas.Refresh()
     End Sub

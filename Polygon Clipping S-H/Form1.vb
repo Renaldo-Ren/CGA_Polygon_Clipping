@@ -665,12 +665,12 @@
         LoadImage(pbCanvas)
     End Sub
 
-    Private Sub btnPoly_MouseClick(sender As Object, e As MouseEventArgs) Handles btnPoly.MouseClick
+    Private Sub btnPoly_MouseClick(sender As Object, e As MouseEventArgs)
         'shape = "Polygon"
         'Poly_Type = "Polygon"
         'pbCanvas.Refresh()
     End Sub
-    Private Sub btnMulti_Click(sender As Object, e As EventArgs) Handles btnMulti.Click
+    Private Sub btnMulti_Click(sender As Object, e As EventArgs)
         'shape = "Multi"
         'Poly_Type = "Multi"
         'pbCanvas.Refresh()
@@ -732,5 +732,13 @@
         ClippedPoly.Clear()
         Multi_ClippedPoly.Clear()
         pbCanvas.Refresh()
+    End Sub
+
+    Private Sub btnRect_Click(sender As Object, e As EventArgs) Handles btnRect.Click
+        If (radMulti.Checked = True) Then
+            radMulti.Checked = False
+        ElseIf (radSingle.Checked = True) Then
+            radSingle.Checked = False
+        End If
     End Sub
 End Class

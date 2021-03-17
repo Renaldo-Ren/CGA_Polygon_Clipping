@@ -3,38 +3,38 @@
     Dim _pen As Pen = New Pen(Color.Black, 3)
     Dim shape As String
     Dim Poly_Type As String
-    Private Polygons As List(Of Point) = Nothing
-    Private ClippingWindow As List(Of Point) = Nothing
-    Private ClippedPoly As New List(Of Point)
-    Private NewClippedPoly As New List(Of Point)
-    Private PolyPreview As List(Of Point) = Nothing
-    Private ClippingWindowPreview As List(Of Point) = Nothing
-    Private NewPoint As Point
-    Private NewPointClip As Point
-    Private NewPointMulti As Point
-    Dim Multi_Polygons As New List(Of List(Of Point))
-    Dim Multi_PolyVector As New List(Of Vector)
-    Dim Multi_PolyPreview As List(Of Point) = Nothing
-    Dim Multi_ClippedPoly As New List(Of List(Of Point))
-    Dim Multi_ClipPolyVector As New List(Of Vector)
-    Dim PolyVector = New Vector
-    Dim ClipPolyVector = New Vector
-    Dim PolyVectorMulti = New Vector
-    Dim ClipVector = New Vector
-    Dim NormalClipVector = New Vector
-    Dim point_indicator As New List(Of Integer)
+    Private Polygons As List(Of Point) = Nothing 'Declaration for Single Polygon
+    Private ClippingWindow As List(Of Point) = Nothing 'Declaration for Clipping Window
+    Private ClippedPoly As New List(Of Point) 'Declaration for Single Polygon that has been clipped 
+    Private NewClippedPoly As New List(Of Point) 'Declaration for Temporary Clipped Polygon
+    Private PolyPreview As List(Of Point) = Nothing 'Declaration for Unfinished Single Polygon
+    Private ClippingWindowPreview As List(Of Point) = Nothing 'Declaration for Unfinished Clipping Window
+    Private NewPoint As Point 'Declaration for new point in single polygon
+    Private NewPointClip As Point 'Declaration for new point in clipping window
+    Private NewPointMulti As Point 'Declaration for new point in multiple polygon(s)
+    Dim Multi_Polygons As New List(Of List(Of Point)) 'Declaration for Multiple Polygon(s)
+    Dim Multi_PolyVector As New List(Of Vector) 'Declaration for Multiple polygons edges as vector
+    Dim Multi_PolyPreview As List(Of Point) = Nothing 'Declaration for Unfinished Multiple Polygon(s)
+    Dim Multi_ClippedPoly As New List(Of List(Of Point)) 'Declaration for Multiple Polygon(s) that has/have been clipped
+    Dim Multi_ClipPolyVector As New List(Of Vector) 'Declaration for Multiple Polygon(s) edges that have been clipped as vector
+    Dim PolyVector = New Vector 'Declaration for Single Polygon edges as vector
+    Dim ClipPolyVector = New Vector 'Declaration for Single Polygon edges that have been clipped as vector
+    Dim PolyVectorMulti = New Vector 'Declaration for one of the multiple polygon edges as vector
+    Dim ClipVector = New Vector 'Declaration for Clipping window edges as vector
+    Dim NormalClipVector = New Vector 'Declaration for normal vector of clipping window edges
+    Dim point_indicator As New List(Of Integer) 'Declaration for indicator whether a point outside/inside an edge
 
-    Structure Vector
+    Structure Vector 'Declaration for our vector structure
         Dim i() As Double
         Dim j() As Double
         Dim n As Integer
-        Public Sub init()
+        Public Sub init() 'Initialization
             n = 0
             ReDim i(n - 1)
             ReDim j(n - 1)
         End Sub
 
-        Public Sub Add(ByVal dx As Double, ByVal dy As Double)
+        Public Sub Add(ByVal dx As Double, ByVal dy As Double) 'Sub for adding new vector/edge
             n += 1
             ReDim Preserve i(n - 1)
             i(n - 1) = dx
@@ -43,151 +43,121 @@
         End Sub
     End Structure
 
-    Private Function Create_PolyVector(ByRef LPoints As List(Of Point))
+    Private Function Create_PolyVector(ByRef LPoints As List(Of Point)) 'Declaration of a function to create the vector from polygon edges
         Dim Temp_Vector As New Vector
-        For i As Integer = 0 To LPoints.Count - 1
+        For i As Integer = 0 To LPoints.Count - 1 'Looping as many as the point in the polygon
             If i = LPoints.Count - 1 Then
-                Temp_Vector.Add(LPoints(0).X - LPoints(i).X, LPoints(0).Y - LPoints(i).Y)
+                Temp_Vector.Add(LPoints(0).X - LPoints(i).X, LPoints(0).Y - LPoints(i).Y) 'Condition for checking the vector from last point to the first point
             Else
-                Temp_Vector.Add(LPoints(i + 1).X - LPoints(i).X, LPoints(i + 1).Y - LPoints(i).Y)
+                Temp_Vector.Add(LPoints(i + 1).X - LPoints(i).X, LPoints(i + 1).Y - LPoints(i).Y) 'Otherwise we check the vector from a point with its next point
             End If
         Next
-        Create_PolyVector = Temp_Vector
+        Create_PolyVector = Temp_Vector 'return the vector result'
     End Function
 
-    Private Function Dot_product(x1 As Double, x2 As Double, y1 As Double, y2 As Double)
+    Private Function Dot_product(x1 As Double, x2 As Double, y1 As Double, y2 As Double) 'Declaration of a function to do a dot product for simple numbers
         Dot_product = x1 * x2 + y1 * y2
     End Function
 
-    Private Function Dot_product_vector(v1 As Vector, v2 As Vector, index As Integer)
-        Dot_product_vector = v1.i(index) * v2.i(index) + v1.j(index) * v2.j(index)
+    Private Function Dot_product_vector(v1 As Vector, v2 As Vector, index1 As Integer, index2 As Integer) 'Declaration of a function to do a dot product of 2 vectors with different indexes
+        Dot_product_vector = v1.i(index1) * v2.i(index2) + v1.j(index1) * v2.j(index2)
     End Function
 
-    Private Function Dot_product_vector_diff(v1 As Vector, v2 As Vector, index1 As Integer, index2 As Integer)
-        Dot_product_vector_diff = v1.i(index1) * v2.i(index2) + v1.j(index1) * v2.j(index2)
-    End Function
-
-    Private Sub Clip_step(ByRef Poly As List(Of Point), ByRef ClipPoly As List(Of Point), ByRef Vect As Vector, ByRef ClipVect As Vector, count As Integer)
+    Private Function Find_Intersection(Poly As List(Of Point), Vect As Vector, pivot As Point, index1 As Integer, index2 As Integer, count As Integer)
         Dim temp_vector As New Vector
-        Dim Temp_index As Integer = 0
-        point_indicator = New List(Of Integer)
-        Dim pivot = ClippingWindow(count)
-        Dim normal_i = NormalClipVector.i(count)
-        Dim normal_j = NormalClipVector.j(count)
-        Dim Temp_LPoints As List(Of Point)
-        Dim Temp_PVector As Vector
-        If count = 0 Then
-            Temp_LPoints = Poly
-            Temp_PVector = Vect
-        Else
-            Temp_LPoints = ClipPoly
-            Temp_PVector = ClipVect
+        temp_vector.Add(Poly(index1).X - pivot.X, Poly(index1).Y - pivot.Y) 'adding a temp vector from the pivot to the one of the point on the polygon line
+        Dim t = Math.Abs(Dot_product_vector(temp_vector, NormalClipVector, 0, count) / Dot_product_vector(Vect, NormalClipVector, index1, count)) 'finding the t to know where the intersection point is. We use abs to make the negative value of t to be positive. The cause is because the y+ is going down not up.
+        Dim temp_x = Poly(index1).X + t * (Poly(index2).X - Poly(index1).X) 'Finding the x of the intersection point with parametric equation
+        Dim temp_y = Poly(index1).Y + t * (Poly(index2).Y - Poly(index1).Y) 'Finding the y of the interesection point with parametric equation
+        Dim temp = New Point(temp_x, temp_y) 'Create a point
+        Find_Intersection = temp
+    End Function
+
+    Private Sub Sutherland_Hodgman(Poly As List(Of Point), Vect As Vector, pivot As Point, index1 As Integer, index2 As Integer, count As Integer) 'Declaration of function to implement the Sutherland-Hodgman algorithm
+        Dim temp_point As New Point
+        'Case 1 : when both the start point and the end point are inside the clipping window. we add the end point to the clipped polygon
+        If (point_indicator(index1) = 0 And point_indicator(index2) = 0) Then
+            NewClippedPoly.Add(Poly(index2))
+            'Case x : when the start point is inside the clipping window and the end point is outside the clipping window. We need to find the intersection
+            'point of the polygon line with the windows edge, then add that point to the clipped polygon
+        ElseIf (point_indicator(index1) = 0 And point_indicator(index2) = 1) Then
+
+            temp_point = Find_Intersection(Poly, Vect, pivot, index1, index2, count) 'Call the function to find the intersection point at the clipping window
+            NewClippedPoly.Add(temp_point)
+            'Case x : when the start point is inside the clipping window and the end point is outside the clipping window. We need to find the intersection
+            'point of the polygon line with the windows edge, then add that point to the clipped polygon
+        ElseIf (point_indicator(index1) = 1 And point_indicator(index2) = 0) Then
+            temp_point = Find_Intersection(Poly, Vect, pivot, index1, index2, count) 'Call the function to find the intersection point at the clipping window
+            NewClippedPoly.Add(temp_point)
+            NewClippedPoly.Add(Poly(index2))
+            'Case x :  when both the start point and the end point are Outside the clipping window. we dont add anything to the new clipped window
         End If
-        For Each p As Point In Temp_LPoints
+
+    End Sub
+    Private Sub Clip_step(ByRef Poly As List(Of Point), ByRef Vect As Vector, count As Integer) 'Declaration of function to clip the polygon
+        Dim temp_vector As New Vector 'Declaration for the vector to find the intersection point
+        Dim Temp_index As Integer = 0 'Declaration to know how many temporary vectors are
+        point_indicator = New List(Of Integer) 'This line is for reseting the point_indicator from previous polygon
+        Dim pivot = ClippingWindow(count) 'Declaration of a point that we are going to use for the point in the window edge
+        Dim normal_i = NormalClipVector.i(count) 'Taking the i value of the normal vector of the clipping window
+        Dim normal_j = NormalClipVector.j(count) 'Taking the j value of the normal vector of the clipping window
+        For Each p As Point In Poly 'Looping for as many point in the polygon'
             Dim Temp_Vector_i = p.X - pivot.X
             Dim Temp_Vector_j = p.Y - pivot.Y
-            Dim Dot = Dot_product(Temp_Vector_i, normal_i, Temp_Vector_j, normal_j)
+            Dim Dot = Dot_product(Temp_Vector_i, normal_i, Temp_Vector_j, normal_j) 'Calculating the dot product'
             If Dot >= 0 Then
-                point_indicator.Add(0)
+                point_indicator.Add(0) 'If the result is bigger or equal than zero it means the point is inside or on the windows edge and we mark it as 0
             Else
-                point_indicator.Add(1)
+                point_indicator.Add(1) 'If the result is smaller than zero it means the point is outside the windows edge and we mark it as 1
             End If
         Next
 
-        For i As Integer = 0 To point_indicator.Count - 1
-            If i = point_indicator.Count - 1 Then
-                If (point_indicator(i) = 0 And point_indicator(0) = 0) Then
-                    NewClippedPoly.Add(Temp_LPoints(0))
-                ElseIf (point_indicator(i) = 0 And point_indicator(0) = 1) Then
-                    temp_vector.Add(Temp_LPoints(i).X - ClippingWindow(count).X, Temp_LPoints(i).Y - ClippingWindow(count).Y)
-                    Dim t = Dot_product_vector_diff(temp_vector, NormalClipVector, Temp_index, count) / Dot_product_vector_diff(Temp_PVector, NormalClipVector, i, count)
-                    If (t < 0) Then
-                        t *= -1
-                    End If
-                    Dim temp_x = Temp_LPoints(i).X + t * (Temp_LPoints(0).X - Temp_LPoints(i).X)
-                    Dim temp_y = Temp_LPoints(i).Y + t * (Temp_LPoints(0).Y - Temp_LPoints(i).Y)
-                    Dim temp = New Point(temp_x, temp_y)
-                    NewClippedPoly.Add(temp)
-                    Temp_index += 1
-                ElseIf (point_indicator(i) = 1 And point_indicator(0) = 0) Then
-                    temp_vector.Add(Temp_LPoints(i).X - ClippingWindow(count).X, Temp_LPoints(i).Y - ClippingWindow(count).Y)
-                    Dim t = Dot_product_vector_diff(temp_vector, NormalClipVector, Temp_index, count) / Dot_product_vector_diff(Temp_PVector, NormalClipVector, i, count)
-                    If (t < 0) Then
-                        t *= -1
-                    End If
-                    Dim temp_x = Temp_LPoints(i).X + t * (Temp_LPoints(0).X - Temp_LPoints(i).X)
-                    Dim temp_y = Temp_LPoints(i).Y + t * (Temp_LPoints(0).Y - Temp_LPoints(i).Y)
-                    Dim temp = New Point(temp_x, temp_y)
-                    NewClippedPoly.Add(temp)
-                    NewClippedPoly.Add(Temp_LPoints(0))
-                    Temp_index += 1
-                End If
-
-            Else
-                If (point_indicator(i) = 0 And point_indicator(i + 1) = 0) Then
-                    NewClippedPoly.Add(Temp_LPoints(i + 1))
-                ElseIf (point_indicator(i) = 0 And point_indicator(i + 1) = 1) Then
-                    temp_vector.Add(Temp_LPoints(i).X - ClippingWindow(count).X, Temp_LPoints(i).Y - ClippingWindow(count).Y)
-                    Dim t = Dot_product_vector_diff(temp_vector, NormalClipVector, Temp_index, count) / Dot_product_vector_diff(Temp_PVector, NormalClipVector, i, count)
-                    If (t < 0) Then
-                        t *= -1
-                    End If
-                    Dim temp_x = Temp_LPoints(i).X + t * (Temp_LPoints(i + 1).X - Temp_LPoints(i).X)
-                    Dim temp_y = Temp_LPoints(i).Y + t * (Temp_LPoints(i + 1).Y - Temp_LPoints(i).Y)
-                    Dim temp = New Point(temp_x, temp_y)
-                    NewClippedPoly.Add(temp)
-                    Temp_index += 1
-                ElseIf (point_indicator(i) = 1 And point_indicator(i + 1) = 0) Then
-                    temp_vector.Add(Temp_LPoints(i).X - ClippingWindow(count).X, Temp_LPoints(i).Y - ClippingWindow(count).Y)
-                    Dim t = Dot_product_vector_diff(temp_vector, NormalClipVector, Temp_index, count) / Dot_product_vector_diff(Temp_PVector, NormalClipVector, i, count)
-                    If (t < 0) Then
-                        t *= -1
-                    End If
-                    Dim temp_x = Temp_LPoints(i).X + t * (Temp_LPoints(i + 1).X - Temp_LPoints(i).X)
-                    Dim temp_y = Temp_LPoints(i).Y + t * (Temp_LPoints(i + 1).Y - Temp_LPoints(i).Y)
-                    Dim temp = New Point(temp_x, temp_y)
-                    NewClippedPoly.Add(temp)
-                    NewClippedPoly.Add(Temp_LPoints(i + 1))
-                    Temp_index += 1
-                End If
+        For i As Integer = 0 To point_indicator.Count - 1 'Looping for how many point in the polygons
+            'implementation of Sutherland-Hodgman algorithm
+            If i = point_indicator.Count - 1 Then 'condition when the start point is the last point of the polygon and the end point is the first point of the polygon
+                Sutherland_Hodgman(Poly, Vect, pivot, i, 0, count)
+            Else 'condition when the start point is any point of the polygon and the end point is the next point of the polygon
+                Sutherland_Hodgman(Poly, Vect, pivot, i, i + 1, count)
             End If
         Next
     End Sub
 
-    Private Sub Multi_Clipping(ByRef Poly As List(Of List(Of Point)), ByRef ClipPoly As List(Of List(Of Point)), ByRef Vect As List(Of Vector), ByRef ClipVect As List(Of Vector))
-        Dim temp_vector As New Vector
+    Private Sub Multi_Clipping(ByRef Poly As List(Of List(Of Point)), ByRef ClipPoly As List(Of List(Of Point)), ByRef Vect As List(Of Vector), ByRef ClipVect As List(Of Vector)) 'declaration of function for clipping multiple polygons
         Try
-            For List_index As Integer = 0 To Poly.Count - 1
-                For count As Integer = 0 To NormalClipVector.n - 1
-                    Try
-                        Clip_step(Poly(List_index), ClipPoly(List_index), Vect(List_index), ClipVect(List_index), count)
-                    Catch ex As Exception
-                        Clip_step(Poly(List_index), Poly(List_index), Vect(List_index), Vect(List_index), count)
+            For List_index As Integer = 0 To Poly.Count - 1 'Looping for each polygon
+                For count As Integer = 0 To NormalClipVector.n - 1 'looping for each clipping window edge
+                    If count = 0 Then 'Condition for the first edge / first clipping
+                        Clip_step(Poly(List_index), Vect(List_index), count) 'Call the function to clip the polygon with the first window edge
+                    Else 'Condition for second until last edge
+                        Clip_step(ClipPoly(List_index), ClipVect(List_index), count) 'Call the function to clip the clipped polygon with the next window edge until finished
+                    End If
+                    Try 'Condition for second until last edge
+                        ClipPoly(List_index) = NewClippedPoly 'Replace the clipped pollygon with the newest one
+                    Catch ex As Exception 'Condition for the first edge / first clipping
+                        ClipPoly.Add(NewClippedPoly) 'Create new clipped polygon
                     End Try
-                    Try
-                        ClipPoly(List_index) = NewClippedPoly
-                    Catch ex As Exception
-                        ClipPoly.Add(NewClippedPoly)
+                    Try 'Condition for second until last edge
+                        ClipVect(List_index) = Create_PolyVector(ClipPoly(List_index)) 'Calling the function to create the vector from our newest clipped polygons and replace the old one
+                    Catch ex As Exception 'Condition for the first edge / first clipping
+                        ClipVect.Add(Create_PolyVector(ClipPoly(List_index))) 'Calling the function to create the vector from our newest clipped polygons and add it to the list
                     End Try
-                    Try
-                        ClipVect(List_index) = Create_PolyVector(ClipPoly(List_index))
-                    Catch ex As Exception
-                        ClipVect.Add(Create_PolyVector(ClipPoly(List_index)))
-                    End Try
-                    NewClippedPoly = New List(Of Point)
+                    NewClippedPoly = New List(Of Point) 'Reset the temporary newest clipped polygon
                 Next
             Next
         Catch ex As Exception
-
         End Try
 
     End Sub
 
-    Private Sub Clipping(ByRef Poly As List(Of Point), ByRef ClipPoly As List(Of Point), ByRef Vect As Vector, ByRef ClipVect As Vector)
+    Private Sub Clipping(ByRef Poly As List(Of Point), ByRef ClipPoly As List(Of Point), ByRef Vect As Vector, ByRef ClipVect As Vector) 'declaration of function for clipping single polygon
         Dim temp_vector As New Vector
         Try
             For count As Integer = 0 To NormalClipVector.n - 1
-                Clip_step(Poly, ClipPoly, Vect, ClipVect, count)
+                If count = 0 Then
+                    Clip_step(Poly, Vect, count)
+                Else
+                    Clip_step(ClipPoly, ClipVect, count)
+                End If
                 ClipPoly = NewClippedPoly
                 ClipVect = Create_PolyVector(ClipPoly)
                 NewClippedPoly = New List(Of Point)
@@ -665,26 +635,18 @@
         LoadImage(pbCanvas)
     End Sub
 
-    Private Sub btnPoly_MouseClick(sender As Object, e As MouseEventArgs)
-        'shape = "Polygon"
-        'Poly_Type = "Polygon"
-        'pbCanvas.Refresh()
-    End Sub
-    Private Sub btnMulti_Click(sender As Object, e As EventArgs)
-        'shape = "Multi"
-        'Poly_Type = "Multi"
-        'pbCanvas.Refresh()
-    End Sub
     Private Sub radSingle_CheckedChanged(sender As Object, e As EventArgs) Handles radSingle.CheckedChanged
         shape = "Polygon"
         Poly_Type = "Polygon"
         pbCanvas.Refresh()
     End Sub
+
     Private Sub radMulti_CheckedChanged(sender As Object, e As EventArgs) Handles radMulti.CheckedChanged
         shape = "Multi"
         Poly_Type = "Multi"
         pbCanvas.Refresh()
     End Sub
+
     Private Sub btnRect_MouseClick(sender As Object, e As MouseEventArgs) Handles btnRect.MouseClick
         shape = "ClippingPoly"
         pbCanvas.Refresh()
@@ -716,6 +678,7 @@
     Private Sub btnClear_Click(sender As Object, e As EventArgs) Handles btnClear.Click
         Delete_Clip()
         Delete_Poly()
+        Delete_Multi()
         Me.pbCanvas.Image = New Bitmap(Me.pbCanvas.Width, Me.pbCanvas.Height)
         ClippedPoly.Clear()
         Multi_Polygons.Clear()
@@ -726,6 +689,7 @@
     Private Sub btnClearMulti_Click(sender As Object, e As EventArgs) Handles btnClearMulti.Click
         Delete_Multi()
         pbCanvas.Refresh()
+        Multi_ClippedPoly.Clear()
     End Sub
     Private Sub btnRefresh_Click(sender As Object, e As EventArgs) Handles btnRefresh.Click
         Delete_Clip()

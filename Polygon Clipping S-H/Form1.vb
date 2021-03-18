@@ -78,19 +78,19 @@
         'Case 1 : when both the start point and the end point are inside the clipping window. we add the end point to the clipped polygon
         If (point_indicator(index1) = 0 And point_indicator(index2) = 0) Then
             NewClippedPoly.Add(Poly(index2))
-            'Case x : when the start point is inside the clipping window and the end point is outside the clipping window. We need to find the intersection
+            'Case 2 : when the start point is inside the clipping window and the end point is outside the clipping window. We need to find the intersection
             'point of the polygon line with the windows edge, then add that point to the clipped polygon
         ElseIf (point_indicator(index1) = 0 And point_indicator(index2) = 1) Then
 
             temp_point = Find_Intersection(Poly, Vect, pivot, index1, index2, count) 'Call the function to find the intersection point at the clipping window
             NewClippedPoly.Add(temp_point)
-            'Case x : when the start point is inside the clipping window and the end point is outside the clipping window. We need to find the intersection
+            'Case 4 : when the start point is inside the clipping window and the end point is outside the clipping window. We need to find the intersection
             'point of the polygon line with the windows edge, then add that point to the clipped polygon
         ElseIf (point_indicator(index1) = 1 And point_indicator(index2) = 0) Then
             temp_point = Find_Intersection(Poly, Vect, pivot, index1, index2, count) 'Call the function to find the intersection point at the clipping window
             NewClippedPoly.Add(temp_point)
             NewClippedPoly.Add(Poly(index2))
-            'Case x :  when both the start point and the end point are Outside the clipping window. we dont add anything to the new clipped window
+            'Case 3 :  when both the start point and the end point are Outside the clipping window. we dont add anything to the new clipped window
         End If
 
     End Sub
@@ -150,86 +150,90 @@
     End Sub
 
     Private Sub Clipping(ByRef Poly As List(Of Point), ByRef ClipPoly As List(Of Point), ByRef Vect As Vector, ByRef ClipVect As Vector) 'declaration of function for clipping single polygon
-        Dim temp_vector As New Vector
         Try
-            For count As Integer = 0 To NormalClipVector.n - 1
-                If count = 0 Then
+            For count As Integer = 0 To NormalClipVector.n - 1 'Looping for as many windows edge
+                If count = 0 Then 'Condition for the first edge / first clipping
                     Clip_step(Poly, Vect, count)
-                Else
+                Else 'Condition for second until last edge
                     Clip_step(ClipPoly, ClipVect, count)
                 End If
-                ClipPoly = NewClippedPoly
-                ClipVect = Create_PolyVector(ClipPoly)
-                NewClippedPoly = New List(Of Point)
+                ClipPoly = NewClippedPoly 'Replace the clipped pollygon with the newest one
+                ClipVect = Create_PolyVector(ClipPoly) 'Calling the function to create the vector from our newest clipped polygons and replace the previous vector
+                NewClippedPoly = New List(Of Point) 'Reset the temporary newest clipped polygon
             Next
         Catch ex As Exception
 
         End Try
     End Sub
 
-    Private Sub Find_Normal(indicator As Integer)
-        For count As Integer = 0 To ClipVector.n - 1
+    Private Sub Find_Normal(indicator As Integer) 'declaration of a function to find the normal vector of the clipping window
+        For count As Integer = 0 To ClipVector.n - 1 'Looping for as many as the vector of the clipping window
             Dim i = ClipVector.i(count)
             Dim j = ClipVector.j(count)
-            If indicator = 0 Then
-                NormalClipVector.Add(j, -i)
-            ElseIf indicator = 1 Then
-                NormalClipVector.Add(-j, i)
+            If indicator = 0 Then 'condition if the clipping window is counter-clockwise
+                NormalClipVector.Add(j, -i) 'The normal vector is the right vector because y+ is down
+            ElseIf indicator = 1 Then 'condition if the clipping window is clockwise
+                NormalClipVector.Add(-j, i) 'The normal vector is the left vector because y+ is down
             End If
         Next
     End Sub
 
     Private Function Check_convex(LPoint As List(Of Point))
-        Dim indicator As Integer
+        Dim indicator As Integer 'declaration of variavle to know whether the clipping window is clockwise or counter-clockwise
+        'take the first 3 point, both the x and the y value
         Dim x1 As Double = LPoint(0).X
         Dim y1 As Double = LPoint(0).Y
         Dim x2 As Double = LPoint(1).X
         Dim y2 As Double = LPoint(1).Y
         Dim x3 As Double = LPoint(2).X
         Dim y3 As Double = LPoint(2).Y
+        'calculate the vector from those points
         Dim dx1 As Double = x2 - x1
         Dim dx2 As Double = x3 - x2
         Dim dy1 As Double = y2 - y1
         Dim dy2 As Double = y3 - y2
 
-        Dim Result As Double = (dx1 * dy2 - dy1 * dx2) * -1
-        If Result > 0 Then 'Counter-Clockwise
+        Dim Result As Double = dx1 * dy2 - dy1 * dx2 'We calculate the cross product of those vector 
+        If Result < 0 Then 'If the result is smaller than zero, it means that it is counter-clockwise and we mark it as 0
             indicator = 0
-        ElseIf Result < 0 Then 'Clockwise
+        ElseIf Result > 0 Then 'If the result is greater than zero, it means that it is clockwise and we mark it as 1
             indicator = 1
         End If
+        'We add the first two vector to the list
         ClipVector.Add(dx1, dy1)
         ClipVector.Add(dx2, dy2)
 
-        For count As Integer = 2 To LPoint.Count - 1
+        For count As Integer = 2 To LPoint.Count - 1 'We loop again from the 2nd point and 3rd point until last point to first point
+            'We take the value of the start point
             Dim xa As Double = LPoint(count).X
             Dim ya As Double = LPoint(count).Y
             Dim xb As Double
             Dim yb As Double
-            If count = LPoint.Count - 1 Then
+            If count = LPoint.Count - 1 Then 'if the start point is the last point, the end point is the first point
                 xb = LPoint(0).X
                 yb = LPoint(0).Y
-            Else
+            Else 'Otherwise the end point will be the next point
                 xb = LPoint(count + 1).X
                 yb = LPoint(count + 1).Y
             End If
+            'we calculate the vector
             Dim dx As Double = xb - xa
             Dim dy As Double = yb - ya
 
-            Dim Res = (ClipVector.i(count - 1) * dy - ClipVector.j(count - 1) * dx) * -1
-            If (indicator = 0 And Res < 0) Or (indicator = 1 And Res > 0) Then
+            Dim Res = ClipVector.i(count - 1) * dy - ClipVector.j(count - 1) * dx  'We calculate the cross product of the new vector and the previous one
+            If (indicator = 0 And Res > 0) Or (indicator = 1 And Res < 0) Then 'Condition for if there is anomaly / different way of traversing the polygon, it will give anomaly value of the indicator and exit the function
                 Check_convex = 2
                 Exit Function
             End If
-            ClipVector.Add(dx, dy)
+            ClipVector.Add(dx, dy) 'We add the new vector to the list
         Next
-        Dim Final_res = -1 * (ClipVector.i(ClipVector.n - 1) * ClipVector.j(0) - ClipVector.j(ClipVector.n - 1) * ClipVector.i(0))
-        If (indicator = 0 And Final_res < 0) Or (indicator = 1 And Final_res > 0) Then
+        Dim Final_res = ClipVector.i(ClipVector.n - 1) * ClipVector.j(0) - ClipVector.j(ClipVector.n - 1) * ClipVector.i(0) 'we calculate one more time for the last vector and the first vector
+        If (indicator = 0 And Final_res > 0) Or (indicator = 1 And Final_res < 0) Then 'Condition for if there is anomaly / different way of traversing the polygon, it will give anomaly value of the indicator and exit the function
             Check_convex = 2
             Exit Function
         End If
-        Find_Normal(indicator)
-        Check_convex = indicator
+        Find_Normal(indicator) 'We call the function to find the normal vector of those clipping window vector
+        Check_convex = indicator 'we return the indicator value
     End Function
 
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles Me.Load

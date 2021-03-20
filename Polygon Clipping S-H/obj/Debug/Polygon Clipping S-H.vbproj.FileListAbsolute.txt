@@ -58,3 +58,7 @@ E:\Semester5\CGA\CGA_Polygon_Clipping\Polygon Clipping S-H\obj\Debug\Polygon Cli
 E:\Semester5\CGA\CGA_Polygon_Clipping\Polygon Clipping S-H\obj\Debug\Polygon Clipping S-H.exe
 E:\Semester5\CGA\CGA_Polygon_Clipping\Polygon Clipping S-H\obj\Debug\Polygon Clipping S-H.xml
 E:\Semester5\CGA\CGA_Polygon_Clipping\Polygon Clipping S-H\obj\Debug\Polygon Clipping S-H.pdb
+E:\Semester5\CGA\CGA_Polygon_Clipping\Polygon Clipping S-H\bin\Debug\Polygon Clipping S-H.exe.manifest
+E:\Semester5\CGA\CGA_Polygon_Clipping\Polygon Clipping S-H\bin\Debug\Polygon Clipping S-H.application
+E:\Semester5\CGA\CGA_Polygon_Clipping\Polygon Clipping S-H\obj\Debug\Polygon Clipping S-H.exe.manifest
+E:\Semester5\CGA\CGA_Polygon_Clipping\Polygon Clipping S-H\obj\Debug\Polygon Clipping S-H.application

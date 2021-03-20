@@ -515,53 +515,57 @@
         End If
     End Sub
 
-    Private Sub btnSave_Click(sender As Object, e As EventArgs) Handles btnSave.Click 'button for saving the image
+    Private Sub btnSave_Click(sender As Object, e As EventArgs) Handles btnSave.Click 'Button for saving the image
         Me.pbCanvas.Image = New Bitmap(Me.pbCanvas.Width, Me.pbCanvas.Height) 'Generating the canvas
-        saveConfirm = "Hokhai" 'the confirmation for the saving the Image
-        Dim g As Graphics = Graphics.FromImage(pbCanvas.Image) 'make the drawing function draw permanently on the canvas
+        saveConfirm = "Hokhai" 'The confirmation for the saving the Image
+        Dim g As Graphics = Graphics.FromImage(pbCanvas.Image) 'Make the drawing function draw permanently on the canvas
+        If (shape IsNot Nothing And (radSingle.Checked = False And radMulti.Checked = False)) Then 'Validation to avoid user saving blank image because we need to fill the shape variable value with Polygon or Multi
+            MsgBox("Please Select the Multi Polygon radio button or Single Polygon radio button to save the file", vbInformation)
+            Exit Sub
+        End If
         If (saveConfirm) = "Hokhai" Then
-            If (shape = "Polygon") Then
-                For i As Integer = 0 To Polygons.Count - 1
-                    If i = Polygons.Count - 1 Then
-                        g.DrawLine(Pens.Blue, Polygons(i), Polygons(0)) 'To draw the last edge of the polygon with blue color
-                    Else
-                        g.DrawLine(Pens.Blue, Polygons(i), Polygons(i + 1)) 'To draw the rest edge of the polygon with blue color
-                    End If
-                Next
-                For i As Integer = 0 To ClippingWindow.Count - 1
-                    If i = ClippingWindow.Count - 1 Then
-                        g.DrawLine(Pens.Black, ClippingWindow(i), ClippingWindow(0)) 'To draw the last edge of the clipping window with black color
-                    Else
-                        g.DrawLine(Pens.Black, ClippingWindow(i), ClippingWindow(i + 1)) 'To draw the rest edge of the clipping window with black color
-                    End If
-                Next
-                For i As Integer = 0 To ClippedPoly.Count - 1
-                    If i = ClippedPoly.Count - 1 Then
-                        g.DrawLine(Pens.Red, ClippedPoly(i), ClippedPoly(0)) 'To draw the last edge of the clipped polygon with red color
-                    Else
-                        g.DrawLine(Pens.Red, ClippedPoly(i), ClippedPoly(i + 1)) 'To draw the rest edge of the clipped polygon with red color
-                    End If
-                Next
-            ElseIf (shape = "Multi") Then
-                For i As Integer = 0 To ClippingWindow.Count - 1
-                    If i = ClippingWindow.Count - 1 Then
-                        g.DrawLine(Pens.Black, ClippingWindow(i), ClippingWindow(0)) 'To draw the last edge of the clipping window with black color
-                    Else
-                        g.DrawLine(Pens.Black, ClippingWindow(i), ClippingWindow(i + 1)) 'To draw the rest edge of the clipping window with black color
-                    End If
-                Next
-                For Each ClipPoly In Multi_ClippedPoly
-                    Try
-                        For i As Integer = 0 To ClipPoly.Count - 1
-                            If i = ClipPoly.Count - 1 Then
-                                g.DrawLine(Pens.Orange, ClipPoly(i), ClipPoly(0)) 'To draw the last edge of the clipped multi polygon with orange color
-                            Else
-                                g.DrawLine(Pens.Orange, ClipPoly(i), ClipPoly(i + 1)) 'To draw the rest edge of the clipped multi polygon with orange color
-                            End If
-                        Next
-                    Catch ex As Exception
-                    End Try
-                Next
+            If (shape = "Polygon") Then 'For Saving the single polygon image
+                Try
+                    For i As Integer = 0 To Polygons.Count - 1
+                        If i = Polygons.Count - 1 Then
+                            g.DrawLine(Pens.Blue, Polygons(i), Polygons(0)) 'To draw the last edge of the polygon with blue color
+                        Else
+                            g.DrawLine(Pens.Blue, Polygons(i), Polygons(i + 1)) 'To draw the rest edge of the polygon with blue color
+                        End If
+                    Next
+                Catch ex As Exception
+                End Try
+                Try
+                    For i As Integer = 0 To ClippingWindow.Count - 1
+                        If i = ClippingWindow.Count - 1 Then
+                            g.DrawLine(Pens.Black, ClippingWindow(i), ClippingWindow(0)) 'To draw the last edge of the clipping window with black color
+                        Else
+                            g.DrawLine(Pens.Black, ClippingWindow(i), ClippingWindow(i + 1)) 'To draw the rest edge of the clipping window with black color
+                        End If
+                    Next
+                Catch ex As Exception
+                End Try
+                Try
+                    For i As Integer = 0 To ClippedPoly.Count - 1
+                        If i = ClippedPoly.Count - 1 Then
+                            g.DrawLine(Pens.Red, ClippedPoly(i), ClippedPoly(0)) 'To draw the last edge of the clipped polygon with red color
+                        Else
+                            g.DrawLine(Pens.Red, ClippedPoly(i), ClippedPoly(i + 1)) 'To draw the rest edge of the clipped polygon with red color
+                        End If
+                    Next
+                Catch ex As Exception
+                End Try
+            ElseIf (shape = "Multi") Then 'For saving the multiple polygons image
+                Try
+                    For i As Integer = 0 To ClippingWindow.Count - 1
+                        If i = ClippingWindow.Count - 1 Then
+                            g.DrawLine(Pens.Black, ClippingWindow(i), ClippingWindow(0)) 'To draw the last edge of the clipping window with black color
+                        Else
+                            g.DrawLine(Pens.Black, ClippingWindow(i), ClippingWindow(i + 1)) 'To draw the rest edge of the clipping window with black color
+                        End If
+                    Next
+                Catch ex As Exception
+                End Try
                 Try
                     For Each Poly In Multi_Polygons
                         For i As Integer = 0 To Poly.Count - 1
@@ -574,25 +578,35 @@
                     Next
                 Catch ex As Exception
                 End Try
+                For Each ClipPoly In Multi_ClippedPoly
+                    Try
+                        For i As Integer = 0 To ClipPoly.Count - 1
+                            If i = ClipPoly.Count - 1 Then
+                                g.DrawLine(Pens.Orange, ClipPoly(i), ClipPoly(0)) 'To draw the last edge of the clipped multi polygon with orange color
+                            Else
+                                g.DrawLine(Pens.Orange, ClipPoly(i), ClipPoly(i + 1)) 'To draw the rest edge of the clipped multi polygon with orange color
+                            End If
+                        Next
+                    Catch ex As Exception
+                    End Try
+                Next
             End If
         End If
 
-        Dim savePic As New SaveFileDialog() 'to generate the save file dialog
-        Dim Directory As String = System.IO.Path.GetDirectoryName("D:\Pictures\") 'to set the intial directory if only the directory is exist
+        Dim savePic As New SaveFileDialog() 'To generate the save file dialog
+        Dim Directory As String = System.IO.Path.GetDirectoryName("D:\Pictures\") 'To set the intial directory if only the directory is exist
 
         Try
             With savePic
-                .Title = "Save Image As" 'for the title of the dialog box title
-                .Filter = "PNG Image|*.png|Jpg, Jpeg Images|*.jpg;*.jpeg|BMP Image|*.bmp" 'set of image formatting
-                .AddExtension = True 'allow program automatically add image format if user don't input it
-                .DefaultExt = ".png" 'default image formating
-                .FileName = "Image.png" 'default name for the image
-                .ValidateNames = True 'make program to only accept Win32 file names
-                .OverwritePrompt = True 'allow the program to show an overwrite warning to the file that already exist
-                .InitialDirectory = Directory 'for the initial directory'
-                .RestoreDirectory = True
+                .Title = "Save Image As" 'For the title of the dialog box title
+                .Filter = "PNG Image|*.png|Jpg, Jpeg Images|*.jpg;*.jpeg|BMP Image|*.bmp" 'Set of image formatting
+                .AddExtension = True 'Allow program automatically add image format if user don't input it
+                .DefaultExt = ".png" 'Default image formating
+                .FileName = "Image.png" 'Default name for the image
+                .OverwritePrompt = True 'Allow the program to show an overwrite warning to the file that already exist
+                .InitialDirectory = Directory 'For the initial directory'
 
-                If .ShowDialog = DialogResult.OK Then 'for the saving phase
+                If .ShowDialog = DialogResult.OK Then 'For the saving phase
                     If .FilterIndex = 1 Then
                         pbCanvas.Image.Save(savePic.FileName, Imaging.ImageFormat.Png)
                     ElseIf .FilterIndex = 2 Then
@@ -605,67 +619,67 @@
                 End If
             End With
         Catch ex As Exception
-            MsgBox("Failed to save the image : " & ex.Message.ToString()) 'if the user failed to save the image
+            MsgBox("Failed to save the image : " & ex.Message.ToString()) 'If the user failed to save the image
         Finally
             savePic.Dispose() 'For releasing unmanaged resources
         End Try
-        saveConfirm = "nope" 'reseting the saveConfirmation
+        saveConfirm = "nope" 'Reseting the saveConfirmation
     End Sub
-    Public Sub LoadImage(ByVal pcBox As PictureBox) 'procedure to load an Image
-        Dim loadImgDialog As New OpenFileDialog 'allow program to show stadard dialog box that prompts the user to open a file
-        loadImgDialog.InitialDirectory = My.Computer.FileSystem.SpecialDirectories.MyPictures  'initial directory
-        loadImgDialog.Filter = "PNG Image|*.png|Jpg, Jpeg Images|*.jpg;*.jpeg|BMP Image|*.bmp" 'allow user to filter the image format
-        Dim result As DialogResult = loadImgDialog.ShowDialog 'for indicating the return value of the dialog box
+    Public Sub LoadImage(ByVal pcBox As PictureBox) 'Procedure to load an Image
+        Dim loadImgDialog As New OpenFileDialog 'Allow program to show stadard dialog box that prompts the user to open a file
+        loadImgDialog.InitialDirectory = My.Computer.FileSystem.SpecialDirectories.MyPictures  'Initial directory
+        loadImgDialog.Filter = "PNG Image|*.png|Jpg, Jpeg Images|*.jpg;*.jpeg|BMP Image|*.bmp" 'Allow user to filter the image format
+        Dim result As DialogResult = loadImgDialog.ShowDialog 'For indicating the return value of the dialog box
         If Not (pcBox) Is Nothing And loadImgDialog.FileName <> String.Empty Then
             pcBox.Image = Image.FromFile(loadImgDialog.FileName)
         End If
     End Sub
 
-    Private Sub btnLoad_Click(sender As Object, e As EventArgs) Handles btnLoad.Click 'button for loading an image if the button is clicked
-        LoadImage(pbCanvas) 'calling the LoadIimage procedure
+    Private Sub btnLoad_Click(sender As Object, e As EventArgs) Handles btnLoad.Click 'Button for loading an image if the button is clicked
+        LoadImage(pbCanvas) 'Calling the LoadIimage procedure
     End Sub
 
-    Private Sub radSingle_CheckedChanged(sender As Object, e As EventArgs) Handles radSingle.CheckedChanged 'rado button to draw single polygon 
+    Private Sub radSingle_CheckedChanged(sender As Object, e As EventArgs) Handles radSingle.CheckedChanged 'Radio button to draw single polygon 
         shape = "Polygon"
         Poly_Type = "Polygon"
         pbCanvas.Refresh()
     End Sub
 
-    Private Sub radMulti_CheckedChanged(sender As Object, e As EventArgs) Handles radMulti.CheckedChanged 'rado button to draw multiple polygons
+    Private Sub radMulti_CheckedChanged(sender As Object, e As EventArgs) Handles radMulti.CheckedChanged 'Radio button to draw multiple polygons
         shape = "Multi"
         Poly_Type = "Multi"
         pbCanvas.Refresh()
     End Sub
 
-    Private Sub btnClipWin_MouseClick(sender As Object, e As MouseEventArgs) Handles btnClipWin.MouseClick 'event that allow user to draw the clipping window when pressing the clipping window button 
+    Private Sub btnClipWin_MouseClick(sender As Object, e As MouseEventArgs) Handles btnClipWin.MouseClick 'Event that allow user to draw the clipping window when pressing the clipping window button 
         shape = "ClippingPoly"
         pbCanvas.Refresh()
     End Sub
 
-    Private Sub Delete_Clip() 'procedure to delete the clipping window 
+    Private Sub Delete_Clip() 'Procedure to delete the clipping window 
         ClippingWindow = Nothing
     End Sub
 
-    Private Sub Delete_Poly() 'procedure to delete single polygon
+    Private Sub Delete_Poly() 'Procedure to delete single polygon
         Polygons = Nothing
     End Sub
 
-    Private Sub Delete_Multi() 'procedure to delete multiple polygons
+    Private Sub Delete_Multi() 'Procedure to delete multiple polygons
         Multi_Polygons.Clear()
         Multi_PolyVector.Clear()
     End Sub
 
-    Private Sub btnDelClip_Click(sender As Object, e As EventArgs) Handles btnDelClip.Click 'button that allow user to delete the clippin window if the button is clicked
+    Private Sub btnDelClip_Click(sender As Object, e As EventArgs) Handles btnDelClip.Click 'Button that allow user to delete the clippin window if the button is clicked
         Delete_Clip()
         pbCanvas.Refresh()
     End Sub
 
-    Private Sub btnDelPoly_Click(sender As Object, e As EventArgs) Handles btnDelPoly.Click 'button that allow user to delete single polygon if the button is clicked
+    Private Sub btnDelPoly_Click(sender As Object, e As EventArgs) Handles btnDelPoly.Click 'Button that allow user to delete single polygon if the button is clicked
         Delete_Poly()
         pbCanvas.Refresh()
     End Sub
 
-    Private Sub btnClear_Click(sender As Object, e As EventArgs) Handles btnClear.Click 'button that allow user to clear the canvas if the button is clicked
+    Private Sub btnClear_Click(sender As Object, e As EventArgs) Handles btnClear.Click 'Button that allow user to clear the canvas if the button is clicked
         Delete_Clip()
         Delete_Poly()
         Delete_Multi()
@@ -676,19 +690,19 @@
         pbCanvas.Refresh()
     End Sub
 
-    Private Sub btnClearMulti_Click(sender As Object, e As EventArgs) Handles btnClearMulti.Click 'button that allow user to delete all multiple polygons if the button is clicked
+    Private Sub btnClearMulti_Click(sender As Object, e As EventArgs) Handles btnClearMulti.Click 'Button that allow user to delete all multiple polygons if the button is clicked
         Delete_Multi()
         pbCanvas.Refresh()
         Multi_ClippedPoly.Clear()
     End Sub
-    Private Sub btnRefresh_Click(sender As Object, e As EventArgs) Handles btnRefresh.Click 'button that allow user to delete the clipping window and the clipped polygon without deleting the polygon if the button is clicked
+    Private Sub btnRefresh_Click(sender As Object, e As EventArgs) Handles btnRefresh.Click 'Button that allow user to delete the clipping window and the clipped polygon without deleting the polygon if the button is clicked
         Delete_Clip()
         ClippedPoly.Clear()
         Multi_ClippedPoly.Clear()
         pbCanvas.Refresh()
     End Sub
 
-    Private Sub btnClipWin_Click(sender As Object, e As EventArgs) Handles btnClipWin.Click ' if the button clipwin clicked it will disable all of the active radio buttons to avoid error 
+    Private Sub btnClipWin_Click(sender As Object, e As EventArgs) Handles btnClipWin.Click ' If the button clipwin clicked it will disable all of the active radio buttons to avoid error 
         If (radMulti.Checked = True) Then
             radMulti.Checked = False
         ElseIf (radSingle.Checked = True) Then

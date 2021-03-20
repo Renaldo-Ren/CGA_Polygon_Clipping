@@ -24,7 +24,7 @@ Partial Class Form1
     Private Sub InitializeComponent()
         Me.components = New System.ComponentModel.Container()
         Me.pbCanvas = New System.Windows.Forms.PictureBox()
-        Me.btnRect = New System.Windows.Forms.Button()
+        Me.btnClipWin = New System.Windows.Forms.Button()
         Me.btnDelClip = New System.Windows.Forms.Button()
         Me.btnClear = New System.Windows.Forms.Button()
         Me.btnDelPoly = New System.Windows.Forms.Button()
@@ -52,27 +52,27 @@ Partial Class Form1
         'pbCanvas
         '
         Me.pbCanvas.Location = New System.Drawing.Point(298, 11)
-        Me.pbCanvas.Margin = New System.Windows.Forms.Padding(2, 2, 2, 2)
+        Me.pbCanvas.Margin = New System.Windows.Forms.Padding(2)
         Me.pbCanvas.Name = "pbCanvas"
         Me.pbCanvas.Size = New System.Drawing.Size(575, 439)
         Me.pbCanvas.TabIndex = 0
         Me.pbCanvas.TabStop = False
         '
-        'btnRect
+        'btnClipWin
         '
-        Me.btnRect.BackColor = System.Drawing.Color.FromArgb(CType(CType(68, Byte), Integer), CType(CType(44, Byte), Integer), CType(CType(46, Byte), Integer))
-        Me.btnRect.FlatAppearance.BorderSize = 0
-        Me.btnRect.FlatStyle = System.Windows.Forms.FlatStyle.Flat
-        Me.btnRect.Font = New System.Drawing.Font("Helvetica", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.btnRect.ForeColor = System.Drawing.Color.FromArgb(CType(CType(254, Byte), Integer), CType(CType(219, Byte), Integer), CType(CType(208, Byte), Integer))
-        Me.btnRect.Location = New System.Drawing.Point(26, 27)
-        Me.btnRect.Margin = New System.Windows.Forms.Padding(2, 2, 2, 2)
-        Me.btnRect.Name = "btnRect"
-        Me.btnRect.Size = New System.Drawing.Size(223, 50)
-        Me.btnRect.TabIndex = 1
-        Me.btnRect.Text = "Clipping Window"
-        Me.ToolTip1.SetToolTip(Me.btnRect, "Click this to start drawing the clipping window")
-        Me.btnRect.UseVisualStyleBackColor = False
+        Me.btnClipWin.BackColor = System.Drawing.Color.FromArgb(CType(CType(68, Byte), Integer), CType(CType(44, Byte), Integer), CType(CType(46, Byte), Integer))
+        Me.btnClipWin.FlatAppearance.BorderSize = 0
+        Me.btnClipWin.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        Me.btnClipWin.Font = New System.Drawing.Font("Helvetica", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.btnClipWin.ForeColor = System.Drawing.Color.FromArgb(CType(CType(254, Byte), Integer), CType(CType(219, Byte), Integer), CType(CType(208, Byte), Integer))
+        Me.btnClipWin.Location = New System.Drawing.Point(26, 27)
+        Me.btnClipWin.Margin = New System.Windows.Forms.Padding(2)
+        Me.btnClipWin.Name = "btnClipWin"
+        Me.btnClipWin.Size = New System.Drawing.Size(223, 50)
+        Me.btnClipWin.TabIndex = 1
+        Me.btnClipWin.Text = "Clipping Window"
+        Me.ToolTip1.SetToolTip(Me.btnClipWin, "Click this to start drawing the clipping window")
+        Me.btnClipWin.UseVisualStyleBackColor = False
         '
         'btnDelClip
         '
@@ -82,7 +82,7 @@ Partial Class Form1
         Me.btnDelClip.Font = New System.Drawing.Font("Helvetica", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.btnDelClip.ForeColor = System.Drawing.Color.FromArgb(CType(CType(254, Byte), Integer), CType(CType(219, Byte), Integer), CType(CType(208, Byte), Integer))
         Me.btnDelClip.Location = New System.Drawing.Point(144, 56)
-        Me.btnDelClip.Margin = New System.Windows.Forms.Padding(2, 2, 2, 2)
+        Me.btnDelClip.Margin = New System.Windows.Forms.Padding(2)
         Me.btnDelClip.Name = "btnDelClip"
         Me.btnDelClip.Size = New System.Drawing.Size(105, 45)
         Me.btnDelClip.TabIndex = 2
@@ -98,7 +98,7 @@ Partial Class Form1
         Me.btnClear.Font = New System.Drawing.Font("Helvetica", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.btnClear.ForeColor = System.Drawing.Color.FromArgb(CType(CType(254, Byte), Integer), CType(CType(219, Byte), Integer), CType(CType(208, Byte), Integer))
         Me.btnClear.Location = New System.Drawing.Point(26, 296)
-        Me.btnClear.Margin = New System.Windows.Forms.Padding(2, 2, 2, 2)
+        Me.btnClear.Margin = New System.Windows.Forms.Padding(2)
         Me.btnClear.Name = "btnClear"
         Me.btnClear.Size = New System.Drawing.Size(223, 50)
         Me.btnClear.TabIndex = 3
@@ -114,7 +114,7 @@ Partial Class Form1
         Me.btnDelPoly.Font = New System.Drawing.Font("Helvetica", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.btnDelPoly.ForeColor = System.Drawing.Color.FromArgb(CType(CType(254, Byte), Integer), CType(CType(219, Byte), Integer), CType(CType(208, Byte), Integer))
         Me.btnDelPoly.Location = New System.Drawing.Point(26, 5)
-        Me.btnDelPoly.Margin = New System.Windows.Forms.Padding(2, 2, 2, 2)
+        Me.btnDelPoly.Margin = New System.Windows.Forms.Padding(2)
         Me.btnDelPoly.Name = "btnDelPoly"
         Me.btnDelPoly.Size = New System.Drawing.Size(105, 45)
         Me.btnDelPoly.TabIndex = 4
@@ -130,7 +130,7 @@ Partial Class Form1
         Me.btnRefresh.Font = New System.Drawing.Font("Helvetica", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.btnRefresh.ForeColor = System.Drawing.Color.FromArgb(CType(CType(254, Byte), Integer), CType(CType(219, Byte), Integer), CType(CType(208, Byte), Integer))
         Me.btnRefresh.Location = New System.Drawing.Point(26, 56)
-        Me.btnRefresh.Margin = New System.Windows.Forms.Padding(2, 2, 2, 2)
+        Me.btnRefresh.Margin = New System.Windows.Forms.Padding(2)
         Me.btnRefresh.Name = "btnRefresh"
         Me.btnRefresh.Size = New System.Drawing.Size(105, 45)
         Me.btnRefresh.TabIndex = 5
@@ -146,7 +146,7 @@ Partial Class Form1
         Me.btnSave.Font = New System.Drawing.Font("Helvetica", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.btnSave.ForeColor = System.Drawing.Color.FromArgb(CType(CType(254, Byte), Integer), CType(CType(219, Byte), Integer), CType(CType(208, Byte), Integer))
         Me.btnSave.Location = New System.Drawing.Point(26, 401)
-        Me.btnSave.Margin = New System.Windows.Forms.Padding(2, 2, 2, 2)
+        Me.btnSave.Margin = New System.Windows.Forms.Padding(2)
         Me.btnSave.Name = "btnSave"
         Me.btnSave.Size = New System.Drawing.Size(105, 45)
         Me.btnSave.TabIndex = 6
@@ -162,7 +162,7 @@ Partial Class Form1
         Me.btnLoad.Font = New System.Drawing.Font("Helvetica", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.btnLoad.ForeColor = System.Drawing.Color.FromArgb(CType(CType(254, Byte), Integer), CType(CType(219, Byte), Integer), CType(CType(208, Byte), Integer))
         Me.btnLoad.Location = New System.Drawing.Point(144, 401)
-        Me.btnLoad.Margin = New System.Windows.Forms.Padding(2, 2, 2, 2)
+        Me.btnLoad.Margin = New System.Windows.Forms.Padding(2)
         Me.btnLoad.Name = "btnLoad"
         Me.btnLoad.Size = New System.Drawing.Size(105, 45)
         Me.btnLoad.TabIndex = 7
@@ -178,7 +178,7 @@ Partial Class Form1
         Me.btnClearMulti.Font = New System.Drawing.Font("Helvetica", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.btnClearMulti.ForeColor = System.Drawing.Color.FromArgb(CType(CType(254, Byte), Integer), CType(CType(219, Byte), Integer), CType(CType(208, Byte), Integer))
         Me.btnClearMulti.Location = New System.Drawing.Point(144, 5)
-        Me.btnClearMulti.Margin = New System.Windows.Forms.Padding(2, 2, 2, 2)
+        Me.btnClearMulti.Margin = New System.Windows.Forms.Padding(2)
         Me.btnClearMulti.Name = "btnClearMulti"
         Me.btnClearMulti.Size = New System.Drawing.Size(105, 45)
         Me.btnClearMulti.TabIndex = 9
@@ -227,7 +227,7 @@ Partial Class Form1
         'Panel3
         '
         Me.Panel3.BackColor = System.Drawing.Color.FromArgb(CType(CType(254, Byte), Integer), CType(CType(219, Byte), Integer), CType(CType(208, Byte), Integer))
-        Me.Panel3.Controls.Add(Me.btnRect)
+        Me.Panel3.Controls.Add(Me.btnClipWin)
         Me.Panel3.Controls.Add(Me.radMulti)
         Me.Panel3.Controls.Add(Me.radSingle)
         Me.Panel3.Dock = System.Windows.Forms.DockStyle.Top
@@ -305,7 +305,7 @@ Partial Class Form1
         Me.ClientSize = New System.Drawing.Size(884, 461)
         Me.Controls.Add(Me.Panel1)
         Me.Controls.Add(Me.pbCanvas)
-        Me.Margin = New System.Windows.Forms.Padding(2, 2, 2, 2)
+        Me.Margin = New System.Windows.Forms.Padding(2)
         Me.Name = "Form1"
         Me.Text = "Sutherland-Hodgman Clipping by FJR"
         CType(Me.pbCanvas, System.ComponentModel.ISupportInitialize).EndInit()
@@ -321,7 +321,7 @@ Partial Class Form1
     End Sub
 
     Friend WithEvents pbCanvas As PictureBox
-    Friend WithEvents btnRect As Button
+    Friend WithEvents btnClipWin As Button
     Friend WithEvents btnDelClip As Button
     Friend WithEvents btnClear As Button
     Friend WithEvents btnDelPoly As Button

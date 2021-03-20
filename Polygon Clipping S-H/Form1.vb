@@ -237,9 +237,7 @@
     End Function
 
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles Me.Load
-
-        pbCanvas.BackColor = Color.White
-
+        pbCanvas.BackColor = Color.White 'to color the picturebox background with white color 
     End Sub
 
     Private Sub pbCanvas_MouseDown(sender As Object, e As MouseEventArgs) Handles pbCanvas.MouseDown
@@ -528,9 +526,9 @@
         End If
     End Sub
 
-    Private Sub btnSave_Click(sender As Object, e As EventArgs) Handles btnSave.Click
+    Private Sub btnSave_Click(sender As Object, e As EventArgs) Handles btnSave.Click 'button for saving the image
         Me.pbCanvas.Image = New Bitmap(Me.pbCanvas.Width, Me.pbCanvas.Height) 'Generating the canvas
-        saveConfirm = "Hokhai" 'the confirmation for the saving
+        saveConfirm = "Hokhai" 'the confirmation for the saving the Image
         Dim g As Graphics = Graphics.FromImage(pbCanvas.Image) 'make the drawing function draw permanently on the canvas
         If (saveConfirm) = "Hokhai" Then
             If (shape = "Polygon") Then
@@ -590,9 +588,8 @@
             End If
         End If
 
-        Dim savePic As New SaveFileDialog() 'creating the prompt to save a file
-        Dim defPath As String = "D:\Picture\"
-        Dim Directory As String = System.IO.Path.GetDirectoryName(defPath)
+        Dim savePic As New SaveFileDialog() 'to generate the save file dialog
+        Dim Directory As String = System.IO.Path.GetDirectoryName("D:\Pictures\") 'to set the intial directory if only the directory is exist
 
         Try
             With savePic
@@ -604,6 +601,7 @@
                 .ValidateNames = True 'make program to only accept Win32 file names
                 .OverwritePrompt = True 'allow the program to show an overwrite warning to the file that already exist
                 .InitialDirectory = Directory 'for the initial directory'
+                .RestoreDirectory = True
 
                 If .ShowDialog = DialogResult.OK Then 'for the saving phase
                     If .FilterIndex = 1 Then
@@ -624,61 +622,61 @@
         End Try
         saveConfirm = "nope" 'reseting the saveConfirmation
     End Sub
-    Public Sub LoadImage(ByVal pcBox As PictureBox)
-        Dim loadDia As New OpenFileDialog 'allow program to show stadard dialog box that prompts the user to open a file
-        loadDia.InitialDirectory = My.Computer.FileSystem.SpecialDirectories.MyPictures  'initial directory
-        loadDia.Filter = "Jpg, Jpeg Images|*.jpg;*.jpeg|PNG Image|*.png|BMP Image|*.bmp" 'allow user to filter the image format
-        Dim result As DialogResult = loadDia.ShowDialog 'for indicating the return value of the dialog box
-        If Not (pcBox) Is Nothing And loadDia.FileName <> String.Empty Then
-            pcBox.Image = Image.FromFile(loadDia.FileName)
+    Public Sub LoadImage(ByVal pcBox As PictureBox) 'procedure to load an Image
+        Dim loadImgDialog As New OpenFileDialog 'allow program to show stadard dialog box that prompts the user to open a file
+        loadImgDialog.InitialDirectory = My.Computer.FileSystem.SpecialDirectories.MyPictures  'initial directory
+        loadImgDialog.Filter = "PNG Image|*.png|Jpg, Jpeg Images|*.jpg;*.jpeg|BMP Image|*.bmp" 'allow user to filter the image format
+        Dim result As DialogResult = loadImgDialog.ShowDialog 'for indicating the return value of the dialog box
+        If Not (pcBox) Is Nothing And loadImgDialog.FileName <> String.Empty Then
+            pcBox.Image = Image.FromFile(loadImgDialog.FileName)
         End If
     End Sub
 
-    Private Sub btnLoad_Click(sender As Object, e As EventArgs) Handles btnLoad.Click
+    Private Sub btnLoad_Click(sender As Object, e As EventArgs) Handles btnLoad.Click 'button for loading an image if the button is clicked
         LoadImage(pbCanvas) 'calling the LoadIimage procedure
     End Sub
 
-    Private Sub radSingle_CheckedChanged(sender As Object, e As EventArgs) Handles radSingle.CheckedChanged
+    Private Sub radSingle_CheckedChanged(sender As Object, e As EventArgs) Handles radSingle.CheckedChanged 'rado button to draw single polygon 
         shape = "Polygon"
         Poly_Type = "Polygon"
         pbCanvas.Refresh()
     End Sub
 
-    Private Sub radMulti_CheckedChanged(sender As Object, e As EventArgs) Handles radMulti.CheckedChanged
+    Private Sub radMulti_CheckedChanged(sender As Object, e As EventArgs) Handles radMulti.CheckedChanged 'rado button to draw multiple polygons
         shape = "Multi"
         Poly_Type = "Multi"
         pbCanvas.Refresh()
     End Sub
 
-    Private Sub btnRect_MouseClick(sender As Object, e As MouseEventArgs) Handles btnRect.MouseClick
+    Private Sub btnClipWin_MouseClick(sender As Object, e As MouseEventArgs) Handles btnClipWin.MouseClick 'event that allow user to draw the clipping window when pressing the clipping window button 
         shape = "ClippingPoly"
         pbCanvas.Refresh()
     End Sub
 
-    Private Sub Delete_Clip()
+    Private Sub Delete_Clip() 'procedure to delete the clipping window 
         ClippingWindow = Nothing
     End Sub
 
-    Private Sub Delete_Poly()
+    Private Sub Delete_Poly() 'procedure to delete single polygon
         Polygons = Nothing
     End Sub
 
-    Private Sub Delete_Multi()
+    Private Sub Delete_Multi() 'procedure to delete multiple polygons
         Multi_Polygons.Clear()
         Multi_PolyVector.Clear()
     End Sub
 
-    Private Sub btnDelClip_Click(sender As Object, e As EventArgs) Handles btnDelClip.Click
+    Private Sub btnDelClip_Click(sender As Object, e As EventArgs) Handles btnDelClip.Click 'button that allow user to delete the clippin window if the button is clicked
         Delete_Clip()
         pbCanvas.Refresh()
     End Sub
 
-    Private Sub btnDelPoly_Click(sender As Object, e As EventArgs) Handles btnDelPoly.Click
+    Private Sub btnDelPoly_Click(sender As Object, e As EventArgs) Handles btnDelPoly.Click 'button that allow user to delete single polygon if the button is clicked
         Delete_Poly()
         pbCanvas.Refresh()
     End Sub
 
-    Private Sub btnClear_Click(sender As Object, e As EventArgs) Handles btnClear.Click
+    Private Sub btnClear_Click(sender As Object, e As EventArgs) Handles btnClear.Click 'button that allow user to clear the canvas if the button is clicked
         Delete_Clip()
         Delete_Poly()
         Delete_Multi()
@@ -689,19 +687,19 @@
         pbCanvas.Refresh()
     End Sub
 
-    Private Sub btnClearMulti_Click(sender As Object, e As EventArgs) Handles btnClearMulti.Click
+    Private Sub btnClearMulti_Click(sender As Object, e As EventArgs) Handles btnClearMulti.Click 'button that allow user to delete all multiple polygons if the button is clicked
         Delete_Multi()
         pbCanvas.Refresh()
         Multi_ClippedPoly.Clear()
     End Sub
-    Private Sub btnRefresh_Click(sender As Object, e As EventArgs) Handles btnRefresh.Click
+    Private Sub btnRefresh_Click(sender As Object, e As EventArgs) Handles btnRefresh.Click 'button that allow user to delete the clipping window and the clipped polygon without deleting the polygon if the button is clicked
         Delete_Clip()
         ClippedPoly.Clear()
         Multi_ClippedPoly.Clear()
         pbCanvas.Refresh()
     End Sub
 
-    Private Sub btnRect_Click(sender As Object, e As EventArgs) Handles btnRect.Click
+    Private Sub btnClipWin_Click(sender As Object, e As EventArgs) Handles btnClipWin.Click ' if the button clipwin clicked it will disable all of the active radio buttons to avoid error 
         If (radMulti.Checked = True) Then
             radMulti.Checked = False
         ElseIf (radSingle.Checked = True) Then

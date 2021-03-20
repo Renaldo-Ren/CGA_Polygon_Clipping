@@ -529,9 +529,9 @@
     End Sub
 
     Private Sub btnSave_Click(sender As Object, e As EventArgs) Handles btnSave.Click
-        Me.pbCanvas.Image = New Bitmap(Me.pbCanvas.Width, Me.pbCanvas.Height)
-        saveConfirm = "Hokhai"
-        Dim g As Graphics = Graphics.FromImage(pbCanvas.Image)
+        Me.pbCanvas.Image = New Bitmap(Me.pbCanvas.Width, Me.pbCanvas.Height) 'Generating the canvas
+        saveConfirm = "Hokhai" 'the confirmation for the saving
+        Dim g As Graphics = Graphics.FromImage(pbCanvas.Image) 'make the drawing function draw permanently on the canvas
         If (saveConfirm) = "Hokhai" Then
             If (shape = "Polygon") Then
                 For i As Integer = 0 To Polygons.Count - 1
@@ -590,23 +590,22 @@
             End If
         End If
 
-        Dim savePic As New SaveFileDialog()
+        Dim savePic As New SaveFileDialog() 'creating the prompt to save a file
         Dim defPath As String = "D:\Picture\"
         Dim Directory As String = System.IO.Path.GetDirectoryName(defPath)
 
         Try
             With savePic
-                .Title = "Save Image As"
-                .Filter = "PNG Image|*.png|Jpg, Jpeg Images|*.jpg;*.jpeg|BMP Image|*.bmp"
-                .AddExtension = True
-                .DefaultExt = ".png"
-                .FileName = "picture.png"
-                .ValidateNames = True
-                .OverwritePrompt = True
-                .InitialDirectory = Directory
-                .RestoreDirectory = True
+                .Title = "Save Image As" 'for the title of the dialog box title
+                .Filter = "PNG Image|*.png|Jpg, Jpeg Images|*.jpg;*.jpeg|BMP Image|*.bmp" 'set of image formatting
+                .AddExtension = True 'allow program automatically add image format if user don't input it
+                .DefaultExt = ".png" 'default image formating
+                .FileName = "Image.png" 'default name for the image
+                .ValidateNames = True 'make program to only accept Win32 file names
+                .OverwritePrompt = True 'allow the program to show an overwrite warning to the file that already exist
+                .InitialDirectory = Directory 'for the initial directory'
 
-                If .ShowDialog = DialogResult.OK Then
+                If .ShowDialog = DialogResult.OK Then 'for the saving phase
                     If .FilterIndex = 1 Then
                         pbCanvas.Image.Save(savePic.FileName, Imaging.ImageFormat.Png)
                     ElseIf .FilterIndex = 2 Then
@@ -619,24 +618,24 @@
                 End If
             End With
         Catch ex As Exception
-            MsgBox("Error to save the image : " & ex.Message.ToString())
+            MsgBox("Failed to save the image : " & ex.Message.ToString()) 'if the user failed to save the image
         Finally
-            savePic.Dispose()
+            savePic.Dispose() 'For releasing unmanaged resources
         End Try
-        saveConfirm = "nope"
+        saveConfirm = "nope" 'reseting the saveConfirmation
     End Sub
     Public Sub LoadImage(ByVal pcBox As PictureBox)
-        Dim loadDia As New OpenFileDialog
-        loadDia.InitialDirectory = My.Computer.FileSystem.SpecialDirectories.MyPictures
-        loadDia.Filter = "Jpg, Jpeg Images|*.jpg;*.jpeg|PNG Image|*.png|BMP Image|*.bmp"
-        Dim result As DialogResult = loadDia.ShowDialog
+        Dim loadDia As New OpenFileDialog 'allow program to show stadard dialog box that prompts the user to open a file
+        loadDia.InitialDirectory = My.Computer.FileSystem.SpecialDirectories.MyPictures  'initial directory
+        loadDia.Filter = "Jpg, Jpeg Images|*.jpg;*.jpeg|PNG Image|*.png|BMP Image|*.bmp" 'allow user to filter the image format
+        Dim result As DialogResult = loadDia.ShowDialog 'for indicating the return value of the dialog box
         If Not (pcBox) Is Nothing And loadDia.FileName <> String.Empty Then
             pcBox.Image = Image.FromFile(loadDia.FileName)
         End If
     End Sub
 
     Private Sub btnLoad_Click(sender As Object, e As EventArgs) Handles btnLoad.Click
-        LoadImage(pbCanvas)
+        LoadImage(pbCanvas) 'calling the LoadIimage procedure
     End Sub
 
     Private Sub radSingle_CheckedChanged(sender As Object, e As EventArgs) Handles radSingle.CheckedChanged

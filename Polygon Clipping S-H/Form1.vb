@@ -519,12 +519,8 @@
         Me.pbCanvas.Image = New Bitmap(Me.pbCanvas.Width, Me.pbCanvas.Height) 'Generating the canvas
         saveConfirm = "Hokhai" 'The confirmation for the saving the Image
         Dim g As Graphics = Graphics.FromImage(pbCanvas.Image) 'Make the drawing function draw permanently on the canvas
-        If (shape IsNot Nothing And (radSingle.Checked = False And radMulti.Checked = False)) Then 'Validation to avoid user saving blank image because we need to fill the shape variable value with Polygon or Multi
-            MsgBox("Please Select the Multi Polygon radio button or Single Polygon radio button to save the file", vbInformation)
-            Exit Sub
-        End If
         If (saveConfirm) = "Hokhai" Then
-            If (shape = "Polygon") Then 'For Saving the single polygon image
+            If (Poly_Type = "Polygon") Then 'For Saving the single polygon image
                 Try
                     For i As Integer = 0 To Polygons.Count - 1
                         If i = Polygons.Count - 1 Then
@@ -555,7 +551,7 @@
                     Next
                 Catch ex As Exception
                 End Try
-            ElseIf (shape = "Multi") Then 'For saving the multiple polygons image
+            ElseIf (Poly_Type = "Multi") Then 'For saving the multiple polygons image
                 Try
                     For i As Integer = 0 To ClippingWindow.Count - 1
                         If i = ClippingWindow.Count - 1 Then

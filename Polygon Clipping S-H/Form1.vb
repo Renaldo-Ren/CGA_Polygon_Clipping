@@ -241,13 +241,9 @@
     End Sub
 
     Private Sub pbCanvas_MouseDown(sender As Object, e As MouseEventArgs) Handles pbCanvas.MouseDown
-        If (shape = "Polygon") Then
-            ' See if we are already drawing a polygon.
-            If (PolyPreview IsNot Nothing) Then
-                ' We are already drawing a polygon.
-                ' If it's the right mouse button, finish this
-                ' polygon.
-                If (e.Button = MouseButtons.Right) Then
+        If (shape = "Polygon") Then 'Condition if The single polygon button is clicked
+            If (PolyPreview IsNot Nothing) Then 'Condition if already draw a polygon edge
+                If (e.Button = MouseButtons.Right) Then 'Condition if right mouse button is clicked
                     ' Finish this polygon.
                     If (PolyPreview.Count > 2) Then
                         Polygons = PolyPreview
@@ -259,30 +255,27 @@
                     ' Add a point to this polygon.
                     If (PolyPreview(PolyPreview.Count - 1) <>
             e.Location) Then
-                        PolyPreview.Add(e.Location)
+                        PolyPreview.Add(e.Location) 'add the location of the mouse cursor to the PolyPreview
                     End If
                 End If
-            Else
-                ' Start a new polygon.
+            Else 'Condition if not already draw a polygon edge
+                ' Start a new polygon edge.
                 PolyPreview = New List(Of Point)()
                 NewPoint = e.Location
-                PolyPreview.Add(e.Location)
+                PolyPreview.Add(e.Location) 'add the location of the mouse cursor to the PolyPreview
             End If
-        ElseIf (shape = "ClippingPoly") Then
-            If (ClippingWindowPreview IsNot Nothing) Then
-                ' We are already drawing a polygon.
-                ' If it's the right mouse button, finish this
-                ' polygon.
-                If (e.Button = MouseButtons.Right) Then
+        ElseIf (shape = "ClippingPoly") Then 'Condition if The Clippping window button is clicked
+            If (ClippingWindowPreview IsNot Nothing) Then 'Condition if already draw a clipping window line
+                If (e.Button = MouseButtons.Right) Then 'Condition if right mouse button is clicked
                     ' Finish this polygon.
                     If (ClippingWindowPreview.Count > 2) Then
                         ClipVector = New Vector
                         NormalClipVector = New Vector
                         Dim indicator As Integer = Check_convex(ClippingWindowPreview)
-                        If (indicator = 0 Or indicator = 1) Then
+                        If (indicator = 0 Or indicator = 1) Then 'Condition if the clipping window is convex
                             ClippingWindow = ClippingWindowPreview
                             ClippingWindowPreview = Nothing
-                        ElseIf (indicator = 2) Then
+                        ElseIf (indicator = 2) Then 'Condition if the clipping window is not convex
                             MsgBox("Error : Cliping window is not convex")
                             ClippingWindowPreview = Nothing
                         End If
@@ -291,21 +284,18 @@
                     ' Add a point to this polygon.
                     If (ClippingWindowPreview(ClippingWindowPreview.Count - 1) <>
             e.Location) Then
-                        ClippingWindowPreview.Add(e.Location)
+                        ClippingWindowPreview.Add(e.Location) 'add the location of the mouse cursor to the ClippingWindowPreview
                     End If
                 End If
-            Else
-                ' Start a new polygon.
+            Else 'Condition if not already draw a clipping window line
+                ' Start a new clipping window edge.
                 ClippingWindowPreview = New List(Of Point)()
                 NewPointClip = e.Location
-                ClippingWindowPreview.Add(e.Location)
+                ClippingWindowPreview.Add(e.Location) 'add the location of the mouse cursor to the ClippingWindowPreview
             End If
-        ElseIf shape = "Multi" Then
-            If (Multi_PolyPreview IsNot Nothing) Then
-                ' We are already drawing a polygon.
-                ' If it's the right mouse button, finish this
-                ' polygon.
-                If (e.Button = MouseButtons.Right) Then
+        ElseIf shape = "Multi" Then 'Condition if The Multi Polygon button is clicked
+            If (Multi_PolyPreview IsNot Nothing) Then 'Condition if already draw a polygon edge
+                If (e.Button = MouseButtons.Right) Then 'Condition if right mouse button is clicked
                     ' Finish this polygon.
                     If (Multi_PolyPreview.Count > 2) Then _
                         Multi_Polygons.Add(Multi_PolyPreview)
@@ -320,8 +310,8 @@
                         Multi_PolyPreview.Add(e.Location)
                     End If
                 End If
-            Else
-                ' Start a new polygon.
+            Else 'Condition if not already draw a polygon edge
+                ' Start a new polygon edge.
                 Multi_PolyPreview = New List(Of Point)()
                 NewPointMulti = e.Location
                 Multi_PolyPreview.Add(e.Location)
@@ -332,13 +322,13 @@
     End Sub
 
     Private Sub pbCanvas_MouseMove(sender As Object, e As MouseEventArgs) Handles pbCanvas.MouseMove
-        If (shape = "Polygon") Then
+        If (shape = "Polygon") Then 'Condition if The single polygon button is clicked
             If (PolyPreview Is Nothing) Then Exit Sub
             NewPoint = e.Location
-        ElseIf (shape = "ClippingPoly") Then
+        ElseIf (shape = "ClippingPoly") Then 'Condition if The Clippping window button is clicked
             If (ClippingWindowPreview Is Nothing) Then Exit Sub
             NewPointClip = e.Location
-        ElseIf (shape = "Multi") Then
+        ElseIf (shape = "Multi") Then 'Condition if The Multi Polygon button is clicked
             If (Multi_PolyPreview Is Nothing) Then Exit Sub
             NewPointMulti = e.Location
         End If
@@ -346,83 +336,82 @@
     End Sub
 
     Private Sub pbCanvas_Paint(sender As Object, e As PaintEventArgs) Handles pbCanvas.Paint
-        'e.Graphics.SmoothingMode = SmoothingMode.AntiAlias
         Try
-            Clipping(Polygons, ClippedPoly, PolyVector, ClipPolyVector)
+            Clipping(Polygons, ClippedPoly, PolyVector, ClipPolyVector) 'Call a Function to clipping a single polygon
         Catch ex As Exception
 
         End Try
         Try
-            Multi_Clipping(Multi_Polygons, Multi_ClippedPoly, Multi_PolyVector, Multi_ClipPolyVector)
+            Multi_Clipping(Multi_Polygons, Multi_ClippedPoly, Multi_PolyVector, Multi_ClipPolyVector) 'Call a Function to clipping a multi polygon
         Catch ex As Exception
 
         End Try
-        If (ClippingWindow IsNot Nothing) Then
+        If (ClippingWindow IsNot Nothing) Then 'Condition if already draw a clipping window
             For i As Integer = 0 To ClippingWindow.Count - 1
                 If i = ClippingWindow.Count - 1 Then
-                    e.Graphics.DrawLine(Pens.Black, ClippingWindow(i), ClippingWindow(0))
+                    e.Graphics.DrawLine(Pens.Black, ClippingWindow(i), ClippingWindow(0)) 'To draw the last edge of the clipping window with black color
                 Else
-                    e.Graphics.DrawLine(Pens.Black, ClippingWindow(i), ClippingWindow(i + 1))
+                    e.Graphics.DrawLine(Pens.Black, ClippingWindow(i), ClippingWindow(i + 1)) 'To draw the rest edge of the clipping window with black color
                 End If
             Next
         End If
 
-        If (shape = "Polygon") Then
-            If (Polygons IsNot Nothing) Then
+        If (shape = "Polygon") Then 'Condition if The single polygon button is clicked
+            If (Polygons IsNot Nothing) Then 'Condition If already draw a polygon
                 For i As Integer = 0 To Polygons.Count - 1
                     If i = Polygons.Count - 1 Then
-                        e.Graphics.DrawLine(Pens.Blue, Polygons(i), Polygons(0))
+                        e.Graphics.DrawLine(Pens.Blue, Polygons(i), Polygons(0)) 'To draw the last edge of the polygon with blue color
                     Else
-                        e.Graphics.DrawLine(Pens.Blue, Polygons(i), Polygons(i + 1))
+                        e.Graphics.DrawLine(Pens.Blue, Polygons(i), Polygons(i + 1)) 'To draw the rest edge of the polygon with blue color
                     End If
                 Next
             End If
             Try
                 For i As Integer = 0 To ClippedPoly.Count - 1
                     If i = ClippedPoly.Count - 1 Then
-                        e.Graphics.DrawLine(Pens.Red, ClippedPoly(i), ClippedPoly(0))
+                        e.Graphics.DrawLine(Pens.Red, ClippedPoly(i), ClippedPoly(0)) 'To draw the last edge of the clipped polygon with red color
                     Else
-                        e.Graphics.DrawLine(Pens.Red, ClippedPoly(i), ClippedPoly(i + 1))
+                        e.Graphics.DrawLine(Pens.Red, ClippedPoly(i), ClippedPoly(i + 1)) 'To draw the rest edge of the clipped polygon with red color
                     End If
                 Next
             Catch ex As Exception
             End Try
             ' Draw the new polygon.
-            If (PolyPreview IsNot Nothing) Then
-                ' Draw the new polygon.
+            If (PolyPreview IsNot Nothing) Then 'Condition if already draw a polygon edge
+                ' Draw the new polygon edge.
                 If (PolyPreview.Count > 1) Then
                     e.Graphics.DrawLines(Pens.Green,
-                        PolyPreview.ToArray())
+                        PolyPreview.ToArray()) 'To draw the polygon line with green color
                 End If
 
                 ' Draw the newest edge.
                 If (PolyPreview.Count > 0) Then
-                    Using dashed_pen As New Pen(Color.Green)
+                    Using dashed_pen As New Pen(Color.Green) 'To use dashed pen with green color
                         dashed_pen.DashPattern = New Single() {3, 3}
                         e.Graphics.DrawLine(dashed_pen,
                             PolyPreview(PolyPreview.Count - 1),
-                            NewPoint)
+                            NewPoint) 'To draw the polygon edge with dashed green color
                     End Using
                 End If
             End If
-        ElseIf (shape = "ClippingPoly") Then
+        ElseIf (shape = "ClippingPoly") Then 'Condition if The Clippping window button is clicked
 
             If Poly_Type = "Polygon" Then
-                If (Polygons IsNot Nothing) Then
+                If (Polygons IsNot Nothing) Then 'Condition if already draw a polygon
                     For i As Integer = 0 To Polygons.Count - 1
                         If i = Polygons.Count - 1 Then
-                            e.Graphics.DrawLine(Pens.Blue, Polygons(i), Polygons(0))
+                            e.Graphics.DrawLine(Pens.Blue, Polygons(i), Polygons(0)) 'To draw the last edge of the polygon with blue color
                         Else
-                            e.Graphics.DrawLine(Pens.Blue, Polygons(i), Polygons(i + 1))
+                            e.Graphics.DrawLine(Pens.Blue, Polygons(i), Polygons(i + 1)) 'To draw the rest edge of the polygon with blue color
                         End If
                     Next
                 End If
                 Try
                     For i As Integer = 0 To ClippedPoly.Count - 1
                         If i = ClippedPoly.Count - 1 Then
-                            e.Graphics.DrawLine(Pens.Red, ClippedPoly(i), ClippedPoly(0))
+                            e.Graphics.DrawLine(Pens.Red, ClippedPoly(i), ClippedPoly(0)) 'To draw the last edge of the clipped polygon with red color 
                         Else
-                            e.Graphics.DrawLine(Pens.Red, ClippedPoly(i), ClippedPoly(i + 1))
+                            e.Graphics.DrawLine(Pens.Red, ClippedPoly(i), ClippedPoly(i + 1)) 'To draw the rest edge of the clipped polygon with red color 
                         End If
                     Next
                 Catch ex As Exception
@@ -432,9 +421,9 @@
                     For Each Poly In Multi_Polygons
                         For i As Integer = 0 To Poly.Count - 1
                             If i = Poly.Count - 1 Then
-                                e.Graphics.DrawLine(Pens.Purple, Poly(i), Poly(0))
+                                e.Graphics.DrawLine(Pens.Purple, Poly(i), Poly(0)) 'To draw the last edge of the multi polygon with purple color
                             Else
-                                e.Graphics.DrawLine(Pens.Purple, Poly(i), Poly(i + 1))
+                                e.Graphics.DrawLine(Pens.Purple, Poly(i), Poly(i + 1)) 'To draw the rest edge of the multi polygon with purple color
                             End If
                         Next
                     Next
@@ -446,9 +435,9 @@
                         Try
                             For i As Integer = 0 To ClipPoly.Count - 1
                                 If i = ClipPoly.Count - 1 Then
-                                    e.Graphics.DrawLine(Pens.Orange, ClipPoly(i), ClipPoly(0))
+                                    e.Graphics.DrawLine(Pens.Orange, ClipPoly(i), ClipPoly(0)) 'To draw the last edge of the clipped multi polygon with orange color
                                 Else
-                                    e.Graphics.DrawLine(Pens.Orange, ClipPoly(i), ClipPoly(i + 1))
+                                    e.Graphics.DrawLine(Pens.Orange, ClipPoly(i), ClipPoly(i + 1)) 'To draw the rest edge of the clipped multi polygon with orange color
                                 End If
                             Next
                         Catch ex As Exception
@@ -458,20 +447,20 @@
                 End Try
             End If
             ' Draw the new polygon.
-            If (ClippingWindowPreview IsNot Nothing) Then
-                ' Draw the new polygon.
+            If (ClippingWindowPreview IsNot Nothing) Then 'Condition if already draw a the clipping window edge
+                ' Draw the new clipping window edge.
                 If (ClippingWindowPreview.Count > 1) Then
                     e.Graphics.DrawLines(Pens.Gray,
-                        ClippingWindowPreview.ToArray())
+                        ClippingWindowPreview.ToArray()) 'To draw the clipping window edge with grey color
                 End If
 
                 ' Draw the newest edge.
                 If (ClippingWindowPreview.Count > 0) Then
-                    Using dashed_pen As New Pen(Color.Green)
+                    Using dashed_pen As New Pen(Color.Green) 'To use dashed pen with green color
                         dashed_pen.DashPattern = New Single() {3, 3}
                         e.Graphics.DrawLine(dashed_pen,
                             ClippingWindowPreview(ClippingWindowPreview.Count - 1),
-                            NewPointClip)
+                            NewPointClip) 'To draw the clipping window edge with dashed green color
                     End Using
                 End If
             End If
@@ -480,9 +469,9 @@
                 For Each Poly In Multi_Polygons
                     For i As Integer = 0 To Poly.Count - 1
                         If i = Poly.Count - 1 Then
-                            e.Graphics.DrawLine(Pens.Purple, Poly(i), Poly(0))
+                            e.Graphics.DrawLine(Pens.Purple, Poly(i), Poly(0)) 'To draw the last edge of the multi polygon with purple color
                         Else
-                            e.Graphics.DrawLine(Pens.Purple, Poly(i), Poly(i + 1))
+                            e.Graphics.DrawLine(Pens.Purple, Poly(i), Poly(i + 1)) 'To draw the rest edge of the multi polygon with purple color
                         End If
                     Next
                 Next
@@ -494,9 +483,9 @@
                     Try
                         For i As Integer = 0 To ClipPoly.Count - 1
                             If i = ClipPoly.Count - 1 Then
-                                e.Graphics.DrawLine(Pens.Orange, ClipPoly(i), ClipPoly(0))
+                                e.Graphics.DrawLine(Pens.Orange, ClipPoly(i), ClipPoly(0)) 'To draw the last edge of the clipped multi polygon with orange color
                             Else
-                                e.Graphics.DrawLine(Pens.Orange, ClipPoly(i), ClipPoly(i + 1))
+                                e.Graphics.DrawLine(Pens.Orange, ClipPoly(i), ClipPoly(i + 1)) 'To draw the rest edge of the clipped multi polygon with orange color
                             End If
                         Next
                     Catch ex As Exception
@@ -506,20 +495,20 @@
             Catch ex As Exception
             End Try
             ' Draw the new polygon.
-            If (Multi_PolyPreview IsNot Nothing) Then
-                ' Draw the new polygon.
+            If (Multi_PolyPreview IsNot Nothing) Then 'Condition if already draw a polygon edge
+                ' Draw the new polygon edge.
                 If (Multi_PolyPreview.Count > 1) Then
                     e.Graphics.DrawLines(Pens.Green,
-                        Multi_PolyPreview.ToArray())
+                        Multi_PolyPreview.ToArray()) 'To draw the polygon edge with green color
                 End If
 
                 ' Draw the newest edge.
                 If (Multi_PolyPreview.Count > 0) Then
-                    Using dashed_pen As New Pen(Color.Green)
+                    Using dashed_pen As New Pen(Color.Green) 'To use dashed pen with green color
                         dashed_pen.DashPattern = New Single() {3, 3}
                         e.Graphics.DrawLine(dashed_pen,
                             Multi_PolyPreview(Multi_PolyPreview.Count - 1),
-                            NewPointMulti)
+                            NewPointMulti) 'To draw the polygon edge with dashed green color
                     End Using
                 End If
             End If
@@ -534,40 +523,40 @@
             If (shape = "Polygon") Then
                 For i As Integer = 0 To Polygons.Count - 1
                     If i = Polygons.Count - 1 Then
-                        g.DrawLine(Pens.Blue, Polygons(i), Polygons(0))
+                        g.DrawLine(Pens.Blue, Polygons(i), Polygons(0)) 'To draw the last edge of the polygon with blue color
                     Else
-                        g.DrawLine(Pens.Blue, Polygons(i), Polygons(i + 1))
+                        g.DrawLine(Pens.Blue, Polygons(i), Polygons(i + 1)) 'To draw the rest edge of the polygon with blue color
                     End If
                 Next
                 For i As Integer = 0 To ClippingWindow.Count - 1
                     If i = ClippingWindow.Count - 1 Then
-                        g.DrawLine(Pens.Black, ClippingWindow(i), ClippingWindow(0))
+                        g.DrawLine(Pens.Black, ClippingWindow(i), ClippingWindow(0)) 'To draw the last edge of the clipping window with black color
                     Else
-                        g.DrawLine(Pens.Black, ClippingWindow(i), ClippingWindow(i + 1))
+                        g.DrawLine(Pens.Black, ClippingWindow(i), ClippingWindow(i + 1)) 'To draw the rest edge of the clipping window with black color
                     End If
                 Next
                 For i As Integer = 0 To ClippedPoly.Count - 1
                     If i = ClippedPoly.Count - 1 Then
-                        g.DrawLine(Pens.Red, ClippedPoly(i), ClippedPoly(0))
+                        g.DrawLine(Pens.Red, ClippedPoly(i), ClippedPoly(0)) 'To draw the last edge of the clipped polygon with red color
                     Else
-                        g.DrawLine(Pens.Red, ClippedPoly(i), ClippedPoly(i + 1))
+                        g.DrawLine(Pens.Red, ClippedPoly(i), ClippedPoly(i + 1)) 'To draw the rest edge of the clipped polygon with red color
                     End If
                 Next
             ElseIf (shape = "Multi") Then
                 For i As Integer = 0 To ClippingWindow.Count - 1
                     If i = ClippingWindow.Count - 1 Then
-                        g.DrawLine(Pens.Black, ClippingWindow(i), ClippingWindow(0))
+                        g.DrawLine(Pens.Black, ClippingWindow(i), ClippingWindow(0)) 'To draw the last edge of the clipping window with black color
                     Else
-                        g.DrawLine(Pens.Black, ClippingWindow(i), ClippingWindow(i + 1))
+                        g.DrawLine(Pens.Black, ClippingWindow(i), ClippingWindow(i + 1)) 'To draw the rest edge of the clipping window with black color
                     End If
                 Next
                 For Each ClipPoly In Multi_ClippedPoly
                     Try
                         For i As Integer = 0 To ClipPoly.Count - 1
                             If i = ClipPoly.Count - 1 Then
-                                g.DrawLine(Pens.Orange, ClipPoly(i), ClipPoly(0))
+                                g.DrawLine(Pens.Orange, ClipPoly(i), ClipPoly(0)) 'To draw the last edge of the clipped multi polygon with orange color
                             Else
-                                g.DrawLine(Pens.Orange, ClipPoly(i), ClipPoly(i + 1))
+                                g.DrawLine(Pens.Orange, ClipPoly(i), ClipPoly(i + 1)) 'To draw the rest edge of the clipped multi polygon with orange color
                             End If
                         Next
                     Catch ex As Exception
@@ -577,9 +566,9 @@
                     For Each Poly In Multi_Polygons
                         For i As Integer = 0 To Poly.Count - 1
                             If i = Poly.Count - 1 Then
-                                g.DrawLine(Pens.Purple, Poly(i), Poly(0))
+                                g.DrawLine(Pens.Purple, Poly(i), Poly(0)) 'To draw the last edge of the multi polygon with purple color
                             Else
-                                g.DrawLine(Pens.Purple, Poly(i), Poly(i + 1))
+                                g.DrawLine(Pens.Purple, Poly(i), Poly(i + 1)) 'To draw the rest edge of the multi polygon with purple color
                             End If
                         Next
                     Next

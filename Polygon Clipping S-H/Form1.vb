@@ -1,6 +1,5 @@
 ﻿Public Class Form1
     Dim saveConfirm
-    Dim _pen As Pen = New Pen(Color.Black, 3)
     Dim shape As String
     Dim Poly_Type As String
     Private Polygons As List(Of Point) = Nothing 'Declaration for Single Polygon
@@ -574,8 +573,8 @@
                     Next
                 Catch ex As Exception
                 End Try
-                For Each ClipPoly In Multi_ClippedPoly
-                    Try
+                Try
+                    For Each ClipPoly In Multi_ClippedPoly
                         For i As Integer = 0 To ClipPoly.Count - 1
                             If i = ClipPoly.Count - 1 Then
                                 g.DrawLine(Pens.Orange, ClipPoly(i), ClipPoly(0)) 'To draw the last edge of the clipped multi polygon with orange color
@@ -583,9 +582,9 @@
                                 g.DrawLine(Pens.Orange, ClipPoly(i), ClipPoly(i + 1)) 'To draw the rest edge of the clipped multi polygon with orange color
                             End If
                         Next
-                    Catch ex As Exception
-                    End Try
-                Next
+                    Next
+                Catch ex As Exception
+                End Try
             End If
         End If
 
@@ -625,8 +624,8 @@
         Dim loadImgDialog As New OpenFileDialog 'Allow program to show stadard dialog box that prompts the user to open a file
         loadImgDialog.InitialDirectory = My.Computer.FileSystem.SpecialDirectories.MyPictures  'Initial directory
         loadImgDialog.Filter = "PNG Image|*.png|Jpg, Jpeg Images|*.jpg;*.jpeg|BMP Image|*.bmp" 'Allow user to filter the image format
-        Dim result As DialogResult = loadImgDialog.ShowDialog 'For indicating the return value of the dialog box
-        If Not (pcBox) Is Nothing And loadImgDialog.FileName <> String.Empty Then
+        loadImgDialog.ShowDialog 'For indicating the return value of the dialog box
+        If (pcBox) IsNot Nothing And loadImgDialog.FileName <> String.Empty Then
             pcBox.Image = Image.FromFile(loadImgDialog.FileName)
         End If
     End Sub
